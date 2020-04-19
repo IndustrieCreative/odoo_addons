@@ -5,16 +5,16 @@
   <data noupdate="0">
   
     <!-- DYNAMIC INHERITANCE Category -->
-    <record id="module_base_dynamic_inheritance_category" model="ir.module.category" >
+    <!-- <record id="module_base_dynamic_inheritance_category" model="ir.module.category" >
       <field name="name">Dynamic Inheritance (hidden)</field>
       <field name="sequence">120</field>
-      <!-- <field name="visible" eval="0"/> -->
-    </record>
+      <field name="visible" eval="0"/>
+    </record> -->
 
     <record id="dynamic_inheritance_void_group" model="res.groups">
       <field name="name">Dynamic Inheritance (NEVER USE! No user must belong to this group.)</field>
-      <field name="category_id" ref="module_base_dynamic_inheritance_category"/>
-      <!-- <field name="visible" eval="0"/> -->
+      <!-- <field name="category_id" ref="module_base_dynamic_inheritance_category"/> -->
+      <field name="category_id" ref="base.module_category_usability"/>
     </record>
 
   </data>
