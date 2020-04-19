@@ -23,7 +23,7 @@ class View(models.Model):
                         # res.prepend((inherit_view.arch, inherit_view.id))
                         res.insert(0, (inherit_view.arch, inherit_view.id))
                     else:
-                        raise UserError("The key 'view_position' in the dict 'bvdi_force_add_inheriting_views' has an unattended value! ")
+                        raise UserError("The key 'view_position' of the dict 'bvdi_force_add_inheriting_views' in the context has an unexpected value! ")
         else:
             pass
 
