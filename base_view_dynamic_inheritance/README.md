@@ -15,18 +15,16 @@ Just associate to this specific group the inherit views that you want to load on
 Then in the action window you pass in the context the id of the views you want to load the inherited view.
 
     'context': {
-        'asc_force_add_inheriting_views': [{
+        'bvdi_force_add_inheriting_views': [{
             'view_id': view_form_id,
             'inherit_view_id': view_form_inherit_id,
             'inherit_position': 'append'
         }]
     }
 
-For now it only works with action windows generated via Python. As in the example.
-
 ## Example
 
-XML file
+Inherited view (XML file)
 
     <?xml version="1.0" encoding="utf-8"?> 
     <odoo> 
@@ -47,15 +45,14 @@ XML file
 
     </odoo> 
 
-Python file
-
+Action (Python file)
 
     class ExampleModel(models.Model):
         # ...
         
         def action_open_my_view(self)
 
-            view_tree_id = self.env.ref('asc_monitoraggio.asc_planner_course_lesson_presenze_view_tree').id
+            view_tree_id = self.env.ref('my_module.my_tree_view').id
             view_form_id = self.env.ref('my_module.my_form_view').id
             view_form_inherit_id = self.env.ref('my_module.my_dynamic_inherit_form_view').id
 
@@ -77,4 +74,24 @@ Python file
 	            },
 		}
 
+Action (XML File)
+
+    <record id="my_action_window" model="ir.actions.act_window" >
+        <field name="name">My view name</field>
+        <field name="res_model">my.model</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_ids"
+               eval="[(5, 0, 0),
+                      (0, 0, {'view_mode': 'tree', 'view_id': ref('my_module.my_tree_view')}),
+                      (0, 0, {'view_mode': 'form', 'view_id': ref('my_module.my_form_view')})]"/>
+        <field name="context" eval="
+            {
+                'bvdi_force_add_inheriting_views': [{
+                    'view_id': ref('my_module.my_form_view'),
+                    'inherit_view_id': ref('my_module.my_dynamic_inherit_form_view'),
+                    'inherit_position': 'append'
+                }]
+            }"
+        />
+    </record>
 
