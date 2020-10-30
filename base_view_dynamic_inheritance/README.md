@@ -8,11 +8,12 @@ A technical module to load inherited views dynamically.
 
 The module create the new group ***base_view_dynamic_inheritance.dynamic_inheritance_void_group*** that should never be associated with any user.
 
-Just associate to this specific group the inherit views that you want to load only under certain conditions (so by default odoo always ignores them because no user is in that group).
+Just associate the inherit views that you want to load only under certain conditions to this specific group (so by default odoo always ignores them because no user is in that group).
 
         <field name="groups_id" eval="[(4, ref('base_view_dynamic_inheritance.dynamic_inheritance_void_group'))]"/>
 
-Then in the action window you pass in the context the id of the views you want to load the inherited view.
+Then, in the context of the action window you pass the XML id of the view/s you want to load and its inherited view/s.
+Position must be "prepend" or "append" to manage the load order of the inherited views. I suggest to always use "append" if there is no reason to do otherwise.
 
     'context': {
         'bvdi_force_add_inheriting_views': [{
