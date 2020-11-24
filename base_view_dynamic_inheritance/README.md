@@ -1,10 +1,9 @@
 # Dynamic views inheritance
 
-A technical module to load inherited views dynamically.
+A technical module to dynamically load inherited views.
 
 
 ## Usage
-
 
 The module create the new group ***base_view_dynamic_inheritance.dynamic_inheritance_void_group*** that should never be associated with any user.
 
