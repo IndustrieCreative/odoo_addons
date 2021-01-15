@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<odoo> 
+
+  <record id="view_attachment_tree_inherit_orphan_gc" model="ir.ui.view">
+    <field name="name">ir.attachment.tree.inherit.orphan.gc</field>
+    <field name="model">ir.attachment</field>
+    <field name="inherit_id" ref="base.view_attachment_tree" />
+    <field name="arch" type="xml">
+
+      <xpath expr="//tree[1]" position="inside">
+        <field name="maybe_orphan"/>
+      </xpath>
+
+    </field>
+  </record>
+
+  <record id="view_attachment_form_inherit_orphan_gc" model="ir.ui.view">
+    <field name="name">ir.attachment.form.inherit.orphan.gc</field>
+    <field name="model">ir.attachment</field>
+    <field name="inherit_id" ref="base.view_attachment_form" />
+    <field name="arch" type="xml">
+
+      <div name="creation_div" position="after">
+        <field name="maybe_orphan" groups="base.group_no_one"/>
+      </div>
+
+    </field>
+  </record>
+
+</odoo>
