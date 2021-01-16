@@ -162,8 +162,8 @@ class IrAttachment(models.Model):
 
         # Esegue le operazioni
         confirmed_orphan_attachments.sudo().unlink()
-        maybe_orphan_attachments.write({'maybe_orphan': True})
-        not_orphan_attachments.write({'maybe_orphan': False})
+        maybe_orphan_attachments.sudo().write({'maybe_orphan': True})
+        not_orphan_attachments.sudo().write({'maybe_orphan': False})
 
         # orphan_attachments.sudo().unlink()
 
