@@ -26,7 +26,8 @@ class IrAttachment(models.Model):
     '''
        Elimina tutti gli attachment rimasti orfani dopo che la relazione con un 
        determinato modello è stata interrotta a causa dell'eliminazione del record
-       oppure per la modifica del campo che puntava all'attachment.
+       oppure per la modifica del campo che puntava all'attachment. Questo problema
+       si presenta in particolar modo utilizzando il widget "many2many_binary".
        Il garbage collector si attiva solo nei modelli in cui esiste un
        attributo "_attachment_garbage_collector" impostato a True.
 
@@ -42,8 +43,8 @@ class IrAttachment(models.Model):
 
        Con i campi Many2one si può aggiungere eventualmente la condizione
        [('res_id', '=', id)] al dominio precedente (il quale resta imprescindibile);
-       in questo caso è necessario ereditare il 'mail.thread' mixin il quale si
-       occuperà lui di eliminare per gli attachment con [('res_id', '!=', 0)].
+       in questo caso è necessario ereditare il 'mail.thread' mixin il quale si occuperà
+       lui di gestire/eliminare nel modo corretto gli attachment con [('res_id', '!=', 0)].
 
        Alcuni modelli hanno una gestione degli attachment non standard e possono
        verificarsi effetti inattesi se questo garbage collector viene attivato su

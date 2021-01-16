@@ -1,22 +1,22 @@
 # M2M and M2O orphan Attachments garbage collector
 
-Garbage collector for orphaned attachments from Many2many and Many2one fields.
+A garbage collector for orphaned attachments from Many2many and Many2one fields.
 
 
 ## Purpose of use
 
-This module deletes all orphaned attachments after the relationship with a given model has been terminated due to either deletion of the record or modification of the field pointing to the attachment.
+This module periodically deletes all orphaned attachments after the relationship with a given model has been terminated due to either deletion of the record or modification of the field pointing to the attachment. For example, this problem occurs when using the 'many2many_binary' widget.
 
 The garbage collector is only activated in models where there is an attribute ``_attachment_garbage_collector`` set to ``True``.
 
-**WARNING**:
+**WARNINGS**:
 It only handles Many2any and Many2one fields pointing to ``ir.attachment`` and with domain ``[('res_model', '=', _name)]``. In other words, if you activate the function on a module, you should not point to attachments whose ``res_model`` is not the module itself.
 
-For Many2many fields you are supposed to use the ``many2many_binary`` widget which takes care of correctly managing the domain of the displayed attachments and the default values of the created ones (especially ``res_model``).
+With the Many2many fields, you are supposed to use the ``many2many_binary`` widget which takes care of correctly managing the domain of the displayed attachments and the default values of the created ones (especially ``res_model`` field).
 
-With the many2one fields, you can add the condition ``[('res_id', '=', id)]`` to the previous domain (which is unavoidable); in this case, you must inherit the ``mail.thread`` mixin which will take care of deleting attachments with ``[('res_id', '!=', 0)]``.
+With the Many2one fields, the condition ``[('res_id', '=', id)]`` can be added to the previous domain (which is unavoidable); in this case it is necessary to inherit the ``mail.thread`` mixin which will take care of the correct handling/deletion of attachments with ``[('res_id', '!=', 0)]``.
 
-Some models have a non-standard attachment handling and unexpected effects may occur if this garbage collector is activated on them. In this case, it is sufficient to add the name of the models to be ignored to the ``CG_MODULE_BLACKLIST`` dict to avoid erroneous activation on them.
+Some models have a non-standard attachment handling and unexpected effects may occur if this garbage collector is activated on them. In this case, it is sufficient to add the name of the models to be ignored to the ``CG_MODULE_BLACKLIST`` dict in order to avoid erroneous activation on them.
 
 The first time it detects orphan attachments it only marks them. The second time this method is executed, if it finds that they are the same, it deletes them. Marked attachments that are no longer orphaned are de-marked.
 
