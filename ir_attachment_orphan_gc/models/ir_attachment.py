@@ -58,7 +58,7 @@ class IrAttachment(models.Model):
 
     '''
     @profile
-    def orphan_attachments_garbage_collector(self):
+    def _garbage_collect_rel_orphan_attachments(self):
         active_models = []
         # Ottiene tutti i modelli registrati dall'ORM
         all_models = self.env['ir.model'].sudo().search([])

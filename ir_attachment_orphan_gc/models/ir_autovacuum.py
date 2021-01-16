@@ -7,5 +7,5 @@ class AutoVacuum(models.AbstractModel):
 
     @api.model
     def power_on(self, *args, **kwargs):
-        self.env['ir.attachment'].orphan_attachments_garbage_collector()
+        self.env['ir.attachment']._garbage_collect_rel_orphan_attachments()
         return super(AutoVacuum, self).power_on(*args, **kwargs)
