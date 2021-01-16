@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>M2M and M2O orphan Attachments garbage collector</title>
+</head>
+
+<body>
+    <p>
+        This module periodically deletes all orphaned attachments after the relationship with a given model has been broken due to either deletion of the record or modification of the field pointing to the attachment.
+    </p>
+    <p>
+        The garbage collector is only activated on models where there is an attribute <code>_attachment_garbage_collector</code> set to <code>True</code>.
+    </p>
+    <p>
+        <b>WARNING</b>: It only handles Many2any and Many2one fields pointing to "ir.attachment" and with domain <code>[('res_model', '=', _name)]</code>.
+    </p>
+</body>
+
+</html>
