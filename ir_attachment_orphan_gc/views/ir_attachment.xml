@@ -1,6 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <odoo> 
 
+  <record id="view_attachment_search_inherit_orphan_gc" model="ir.ui.view">
+    <field name="name">ir.attachment.search.inherit.orphan.gc</field>
+    <field name="model">ir.attachment</field>
+    <field name="inherit_id" ref="base.view_attachment_search" />
+    <field name="arch" type="xml">
+
+      <field name="create_date" position="after">
+        <field name="res_model"/>
+      </field>
+
+      <filter name="binary_filter" position="after">
+        <separator/>
+          <filter name="all_res_field" string="SHOW ALL" domain="['|', ('res_field', '!=', False), ('res_field', '=', False)]"/>
+          <filter name="with_res_field" string="With Resource Field" domain="[('res_field', '!=', False)]"/>
+          <filter name="without_res_field" string="Without Resource Field" domain="[('res_field', '=', False)]"/>
+        <separator/>
+          <filter name="maybe_orphan" string="Maybe orphan" domain="[('maybe_orphan', '=', True)]"/>
+          <filter name="not_maybe_orphan" string="Maybe Not orphan" domain="[('maybe_orphan', '=', False)]"/>
+        <separator/>
+      </filter>
+
+      <filter name="attached_document_name" position="after">
+        <separator/>
+         <filter name="group_res_model"
+                 string="Resource Model"
+                 domain="[]"
+                 context="{'group_by': 'res_model'}"/>
+         <filter name="group_res_field"
+                 string="Resource Field"
+                 domain="[]"
+                 context="{'group_by': 'res_field'}"/>
+         <filter name="group_mimetype"
+                 string="Mime Type"
+                 domain="[]"
+                 context="{'group_by': 'mimetype'}"/>
+      </filter>
+
+    </field>
+  </record>
+
+
   <record id="view_attachment_tree_inherit_orphan_gc" model="ir.ui.view">
     <field name="name">ir.attachment.tree.inherit.orphan.gc</field>
     <field name="model">ir.attachment</field>
@@ -19,6 +60,10 @@
     <field name="model">ir.attachment</field>
     <field name="inherit_id" ref="base.view_attachment_form" />
     <field name="arch" type="xml">
+
+      <field name="mimetype" position="after">
+        <field name="checksum" groups="base.group_no_one" readonly="1"/>
+      </field>
 
       <div name="creation_div" position="after">
         <field name="maybe_orphan" groups="base.group_no_one"/>
