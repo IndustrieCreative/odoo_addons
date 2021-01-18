@@ -22,7 +22,7 @@ You can use this module in two ways:
 
 **Automatically**, by changing the System Parameter ``ir.autovacuum.attachment.orphan.active`` from ``False`` to ``True`` (strings are case sensitive!). In this way, the method of this garbage collector will be executed just before the main cron "Settings >> Technical >> Automation >> Scheduled Actions >> **Base: Auto-vacuum internal data**". By default, the automatic execution of this garbage collector is disabled. So when installing this module, no actions will be executed automatically.
 
-## CRON SETTIINGS
+## CRON SETTINGS
 
 ### Activation
 As mentioned above, to activate the cron you must change the System Parameter ``ir.autovacuum.attachment.orphan.active`` from ``False`` to ``True``.
@@ -66,7 +66,7 @@ Se eseguito come cron, questo garbage collector marca e/o elimina solo gli attac
 
 **Automaticamente**, modificando il Parametro di Sistema ``ir.autovacuum.attachment.orphan.active`` da ``False`` a ``True`` (string are case sensitive!). In questo modo, il metodo di questo garbage collector sarà eseguito subito prima del cron principale "Impostazioni >> Funzioni tecniche >> Automazione >> Azioni pianificate >> **Base: pulizia automatica dati interni**". Di default, l'esecuzione automatica di questo garbage collector è disattivata. Dunque al momento dell'installazione di questo modulo nessuna azione verrà eseguita automaticamente.
 
-## CRON SETTIINGS
+## CRON SETTINGS
 
 ### ATTIVAZIONE
 Come detto sopra, per attivare il cron bisogna modificare il Parametro di Sistema ``ir.autovacuum.attachment.orphan.active`` da ``False`` a ``True``.

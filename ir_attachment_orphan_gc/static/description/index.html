@@ -8,15 +8,119 @@
 </head>
 
 <body>
-    <p>
-        This module periodically deletes all orphaned attachments after the relationship with a given model has been broken due to either deletion of the record or modification of the field pointing to the attachment.
-    </p>
-    <p>
-        The garbage collector is only activated on models where there is an attribute <code>_attachment_garbage_collector</code> set to <code>True</code>.
-    </p>
-    <p>
-        <b>WARNING</b>: It only handles Many2any and Many2one fields pointing to "ir.attachment" and with domain <code>[('res_model', '=', _name)]</code>.
-    </p>
+    <h1 id="m2m-and-m2o-orphan-attachments-garbage-collector">M2M and M2O orphan Attachments garbage collector</h1>
+    <p>A garbage collector for orphaned attachments from Many2many and Many2one fields.</p>
+    <hr>
+    <h2 id="purpose-of-use">PURPOSE OF USE</h2>
+    <p>This is a tool that allows you to mark and/or delete all orphaned attachments after all relationships (with any other model in the environment) have been broken due to records being deleted or fields pointing to the attachment being changed. This problem occurs particularly when using the <code>many2many_binary</code> widget.</p>
+    <p>When run as a cron, this garbage collector only marks and/or deletes attachments with the fields <code>res_id</code> empty and <code>res_model</code> pointing to a model whose <code>_attachment_garbage_collector</code> attribute is set to <code>True</code>.</p>
+    <h2 id="how-to-use-it">HOW TO USE IT</h2>
+    <p>You can use this module in two ways:</p>
+    <p><strong>Manually</strong>, by opening the model records (<code>ir.model</code>) from &quot;Settings &gt;&gt; Technical &gt;&gt; Database Structure &gt;&gt; <strong>Models</strong>&quot; and executing the actions with the appropriate buttons in the &quot;<strong>Attachment GC</strong>&quot; tab. Further explanations on the manual mode are given above the action buttons, in the form view.</p>
+    <p><strong>Automatically</strong>, by changing the System Parameter <code>ir.autovacuum.attachment.orphan.active</code> from <code>False</code> to <code>True</code> (strings are case sensitive!). In this way, the method of this garbage collector will be executed just before the main cron &quot;Settings &gt;&gt; Technical &gt;&gt; Automation &gt;&gt; Scheduled Actions &gt;&gt; <strong>Base: Auto-vacuum internal data</strong>&quot;. By default, the automatic execution of this garbage collector is disabled. So when installing this module, no actions will be executed automatically.</p>
+    <h2 id="cron-settiings">CRON SETTINGS</h2>
+    <h3 id="activation">Activation</h3>
+    <p>As mentioned above, to activate the cron you must change the System Parameter <code>ir.autovacuum.attachment.orphan.active</code> from <code>False</code> to <code>True</code>.</p>
+    <p>In the Python definition of the model you want to monitor, add the <code>_attachment_garbage_collector</code> attribute and set it to <code>True</code>.</p>
+    <h3 id="marking-deleting-attachments">Marking/deleting attachments</h3>
+    <p>By default, attachments are not deleted but only marked. Changing the System Parameter <code>ir.autovacuum.attachment.orphan.unlink</code> from <code>False</code> to <code>True</code> activates the &quot;<strong>delete mode</strong>&quot;. In &quot;delete mode&quot;, the first time it detects orphaned attachments it only marks them (field <code>maybe_orphan</code>). The second time this method is executed, if it finds that they are the same records, it deletes them (this is to reduce possible errors when the number of attachments is very large). Those previously marked and no longer orphaned are de-marked.</p>
+    <h3 id="limitation-on-weekly-day">Limitation on weekly day</h3>
+    <p>It is also possible to limit the execution of the method to a certain day of the week. By default this function is deactivated and therefore the method will be executed without day limitation. To indicate a specific day, it is possible to change the System parameter <code>ir.autovacuum.attachment.orphan.weekday</code> from <code>False</code> to a number between <code>0</code> and <code>6</code> according to the encoding of <code>datetime.date.weekday()</code>.</p>
+    <h2 id="precautions-for-use">PRECAUTIONS FOR USE</h2>
+    <p>This tool only handles <strong>Many2any</strong> and <strong>Many2one</strong> fields pointing to records in <code>ir.attachment</code> and with domain <code>[(&#39;res_model&#39;, &#39;=&#39;, _name)]</code> where <code>_name</code> is the internal name of one of the models you wish to keep &quot;clean&quot;. In other words, if you activate the function on a model and want ALL orphaned attachments to be detected, you should not point to attachments whose <code>res_model</code> is not also a module with <code>_attachment_garbage_collector</code> set to <code>True</code>.</p>
+    <p>For <strong>Many2many</strong> fields you are supposed to use the <code>many2many_binary</code> widget which takes care of correctly managing the domain of the displayed attachments and the default values of the created ones (especially <code>res_model</code>).</p>
+    <p>With the <strong>Many2one</strong> fields, it is possible to add the condition <code>[(&#39;res_id&#39;, &#39;=&#39;, id)]</code> to the previous domain (which is essential); in this case, it is necessary to inherit the <code>mail.thread</code> mixin which will take care of the correct management/deletion of attachments with <code>[(&#39;res_id&#39;, &#39;!=&#39;, 0)]</code>.</p>
+    <p>Some models have a non standard attachment handling and unexpected effects may occur if this garbage collector is activated on them. In this case, simply add the name of the models to be ignored to the <code>CG_MODULE_NAME_SAFELIST</code> dict to avoid erroneous activation on them. E.g. <code>self.env[&#39;ir.attachment&#39;].CG_MODULE_NAME_SAFELIST.append(&#39;model.to.add&#39;)</code></p>
+    <hr>
+    <h2 id="examples">Examples</h2>
+    <p>System Parameters (ir.config_parameter)</p>
+    <pre><code>ir<span class="hljs-selector-class">.autovacuum</span><span class="hljs-selector-class">.attachment</span><span class="hljs-selector-class">.orphan</span><span class="hljs-selector-class">.active</span>  :  <span class="hljs-string">"True"</span>
+ir<span class="hljs-selector-class">.autovacuum</span><span class="hljs-selector-class">.attachment</span><span class="hljs-selector-class">.orphan</span><span class="hljs-selector-class">.unlink</span>  :  <span class="hljs-string">"True"</span>
+ir<span class="hljs-selector-class">.autovacuum</span><span class="hljs-selector-class">.attachment</span><span class="hljs-selector-class">.orphan</span><span class="hljs-selector-class">.weekday</span> :  <span class="hljs-string">"6"</span>
+</code></pre>
+    <p>Model (Python file)</p>
+    <pre><code><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleModel</span><span class="hljs-params">(models.Model)</span>:</span>
+    _name = <span class="hljs-string">'example.model'</span>
+    _inherit = [<span class="hljs-string">'mail.thread'</span>]
+
+    _attachment_garbage_collector = <span class="hljs-keyword">True</span>
+
+    <span class="hljs-comment"># ...</span>
+
+    <span class="hljs-comment"># MANY2MANY</span>
+    m2m_attachment_ids = fields.Many2many(
+        comodel_name = <span class="hljs-string">'ir.attachment'</span>,
+        relation = <span class="hljs-string">'example_model_ir_attachment_rel'</span>,
+        column1 = <span class="hljs-string">'example_id'</span>,
+        column2 = <span class="hljs-string">'attachment_id'</span>,
+        string = <span class="hljs-string">'Many2many attachments'</span>
+    )
+
+    <span class="hljs-comment"># MANY2ONE mode 1</span>
+    m2o_attachment_1_id = fields.Many2one(
+        comodel_name = <span class="hljs-string">'ir.attachment'</span>,
+        string= <span class="hljs-string">'Many2one attachment 1'</span>
+    )
+    <span class="hljs-comment"># MANY2ONE mode 2</span>
+    m2o_attachment_1_id = fields.Many2one(
+        comodel_name = <span class="hljs-string">'ir.attachment'</span>,
+        domain = [(<span class="hljs-string">'res_model'</span>, <span class="hljs-string">'='</span>, _name)],
+        context = {<span class="hljs-string">'default_res_model'</span>: _name},
+        string= <span class="hljs-string">'Many2one attachment 2'</span>
+    )
+
+    <span class="hljs-comment"># ONE2MANY</span>
+    <span class="hljs-comment"># This type is not managed by this garbage collector but here you can show</span>
+    <span class="hljs-comment"># the same available records for the "m2o_attachment_1_id" field.</span>
+    <span class="hljs-comment"># It is the same as the attachment button in the chatter of "mail.thread".</span>
+    <span class="hljs-comment"># Useful just for testing purposes.</span>
+    o2m_attachment_ids = fields.One2many(
+        comodel_name = <span class="hljs-string">'ir.attachment'</span>,
+        inverse_name = <span class="hljs-string">'res_id'</span>,
+        domain = [(<span class="hljs-string">'res_model'</span>, <span class="hljs-string">'='</span>, _name)],
+        context = {<span class="hljs-string">'default_res_model'</span>: _name},
+        string = <span class="hljs-string">'One2many attachments'</span>
+    )
+</code></pre>
+    <p>View (XML file)</p>
+    <pre><code><span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">record</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"example_model_view_form"</span> <span class="hljs-attr">model</span>=<span class="hljs-string">"ir.ui.view"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">field</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"name"</span>&gt;</span>example.model.view.form<span class="hljs-tag">&lt;/<span class="hljs-name">field</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">field</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"model"</span>&gt;</span>example.model<span class="hljs-tag">&lt;/<span class="hljs-name">field</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">field</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"arch"</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"xml"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">form</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">sheet</span>&gt;</span>
+                <span class="hljs-comment">&lt;!-- MANY2MANY --&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">field</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"m2m_attachment_ids"</span>
+                       <span class="hljs-attr">widget</span>=<span class="hljs-string">"many2many_binary"</span>
+                /&gt;</span>  
+
+                <span class="hljs-comment">&lt;!-- MANY2ONE mode 1 --&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">field</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"m2o_attachment_1_id"</span>
+                       <span class="hljs-attr">context</span>=<span class="hljs-string">"</span></span></span><span class="hljs-template-variable">{
+                         'default_res_model': 'example.model',
+                         'default_res_id': id,
+                       }</span><span class="xml"><span class="hljs-tag"><span class="hljs-string">"</span>
+                       <span class="hljs-attr">domain</span>=<span class="hljs-string">"[
+                         ('res_model', '=', 'example.model'),
+                         ('res_id', '=', id),
+                       ]"</span>
+                /&gt;</span>
+
+                <span class="hljs-comment">&lt;!-- MANY2ONE mode 2 --&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">field</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"m2o_attachment_2_id"</span> /&gt;</span>
+
+                <span class="hljs-comment">&lt;!-- ONE2MANY --&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">field</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"o2m_attachment_ids"</span> /&gt;</span>
+
+            <span class="hljs-tag">&lt;/<span class="hljs-name">sheet</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"oe_chatter"</span>&gt;</span>
+              <span class="hljs-tag">&lt;<span class="hljs-name">field</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"message_follower_ids"</span> <span class="hljs-attr">widget</span>=<span class="hljs-string">"mail_followers"</span> /&gt;</span>
+              <span class="hljs-tag">&lt;<span class="hljs-name">field</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"message_ids"</span> <span class="hljs-attr">widget</span>=<span class="hljs-string">"mail_thread"</span> /&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">field</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">record</span>&gt;</span></span>
+</code></pre>
 </body>
 
 </html>
