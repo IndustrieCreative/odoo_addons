@@ -55,6 +55,7 @@
     </field>
   </record>
 
+
   <record id="view_attachment_form_inherit_orphan_gc" model="ir.ui.view">
     <field name="name">ir.attachment.form.inherit.orphan.gc</field>
     <field name="model">ir.attachment</field>

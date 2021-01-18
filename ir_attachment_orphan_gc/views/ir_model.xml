@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<odoo> 
+
+  <record id="view_model_tree_inherit_orphan_gc" model="ir.ui.view">
+    <field name="name">ir.model.tree.inherit.orphan.gc</field>
+    <field name="model">ir.model</field>
+    <field name="inherit_id" ref="base.view_model_tree" />
+    <field name="arch" type="xml">
+
+      <xpath expr="//tree[1]" position="inside">
+        <field name="attachment_gc_active"/>
+      </xpath>
+
+    </field>
+  </record>
+
+  <record id="view_model_form_inherit_orphan_gc" model="ir.ui.view">
+    <field name="name">ir.model.form.inherit.orphan.gc</field>
+    <field name="model">ir.model</field>
+    <field name="inherit_id" ref="base.view_model_form" />
+    <field name="arch" type="xml">
+
+      <xpath expr="//notebook[1]" position="inside">
+        <page string="Attachments GC" groups="base.group_no_one">
+          <div>
+            <p>
+              <b>CONSIDER THAT...</b>
+            </p>
+            <p>
+              If you run "<b>Mark &amp; Delete orphans</b>", only previously marked attachments are deleted.
+              Newly found orphan attachments are only marked and will be deleted at the next execution.
+            </p>
+            <p>
+              Attachment marked as orphan will be automatically deleted by the "Base: Auto-vacuum internal data"
+              cron only if the System Parameter <code>ir.autovacuum.attachment.orphan.unlink</code> is set to <code>"True"</code>.
+            </p>
+            <p>
+              If you run "<b>Mark &amp; Delete orphans</b>", files on the filesystem will be physically deleted at
+              the next "Base: Auto-vacuum internal data" cron if no other attachments refer to them, regardless of the value
+              of the System Parameter <code>ir.autovacuum.attachment.orphan.unlink</code> mentioned above.
+            </p>
+            <p>
+              If you run "<b>Mark only orphans</b>" and the attribute <code>_attachment_garbage_collector</code>
+              is set to <code>True</code> in the definition of this model (see "<b>GC active?</b>" field), the marked
+              attachments will be deleted (also from the filesystem if no other attachments refer to them) at the next
+              "Base: Auto-vacuum internal data" cron if the System Parameter <code>ir.autovacuum.attachment.orphan.unlink</code>
+              is set to <code>"True"</code>.
+            </p>
+          </div>
+          <group>
+            <field name="attachment_gc_active"/>
+          </group>
+          <group>
+            <div class="oe_button_box oe_left" name="button_box"
+                 style="margin-right:10px;">
+              <button name="action_open_attachments"
+                      class="oe_stat_button oe_read_only"
+                      icon="fa-list"
+                      type="object">
+                <span class="o_stat_text">
+                  Open attachemnts
+                </span>
+              </button>
+            </div>
+            <div class="oe_button_box oe_left" name="button_box">
+              <button name="action_gc_rel_orphan_attachments_safe"
+                      class="oe_stat_button oe_read_only"
+                      icon="fa-check-square"
+                      type="object">
+                <span class="o_stat_text">
+                  Mark only orphans
+                </span>
+              </button>
+              <button name="action_gc_rel_orphan_attachments_unlink"
+                      class="oe_stat_button oe_read_only"
+                      icon="fa-trash"
+                      type="object"
+                      confirm="Are you sure?">
+                <span class="o_stat_text">
+                  Mark &amp; Delete orphans
+                </span>
+              </button>
+            </div>
+          </group>
+        </page>
+      </xpath>
+
+
+    </field>
+  </record>
+
+</odoo>
