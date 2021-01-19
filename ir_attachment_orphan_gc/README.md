@@ -46,6 +46,8 @@ With the **Many2one** fields, it is possible to add the condition ``[('res_id', 
 
 Some models have a non standard attachment handling and unexpected effects may occur if this garbage collector is activated on them. In this case, simply add the name of the models to be ignored to the ``CG_MODULE_NAME_SAFELIST`` dict to avoid erroneous activation on them. E.g. ``self.env['ir.attachment'].CG_MODULE_NAME_SAFELIST.append('model.to.add')``
 
+## NOTE WELL
+When an image is deleted, you can see in the log that two records are deleted instead of one. The other record is the thumbnail, which is handled automatically and hidden by default in the Attachments tree view.
 
 ---
 
@@ -89,6 +91,9 @@ Per i campi **Many2many** si presume di usare il widget ``many2many_binary`` il 
 Con i campi **Many2one** si può aggiungere eventualmente la condizione ``[('res_id', '=', id)`` al dominio precedente (il quale resta imprescindibile); in questo caso è necessario ereditare il ``mail.thread`` mixin il quale si occuperà lui di gestire/eliminare nel modo corretto gli attachment con ``[('res_id', '!=', 0)]``.
 
 Alcuni modelli hanno una gestione degli attachment non standard e potrebbero verificarsi effetti inattesi se questo garbage collector venisse attivato su di essi. In questo caso basta aggiungere il nome dei modelli da ignorare al dict ``CG_MODULE_NAME_SAFELIST`` per evitare un'attivazione erronea su di essi. Es. ``self.env['ir.attachment'].CG_MODULE_NAME_SAFELIST.append('model.to.add')``
+
+## NOTA BENE
+Quando un'immagine viene cancellata, si può vedere nel log che vengono cancellati due record anziché uno. L'altro record è il thumbnail, che è gestito automaticamente e viene nascosto di default nella tree view degli Attachemnt.
 
 
 ---
