@@ -13,5 +13,6 @@
     'data': [
         'views/ir_attachment.xml',
         'views/ir_model.xml',
+        'wizard/base_attachment_resfinder_views.xml',
     ],
 }

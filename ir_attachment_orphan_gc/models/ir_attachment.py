@@ -21,6 +21,73 @@ class IrAttachment(models.Model):
             will be removed.'''
     )
 
+    def action_find_resource(self):
+        self.ensure_one()
+        
+        Relfinder = self.env['base.attachment.relfinder']
+        found_relations = Relfinder._find_attachment_relations(self.id)
+        new_relfinder = Relfinder.create({
+            'attachment_id': self.id,
+            # Create a "line" for each relation
+            'relation_ids': [(0, 0, {
+                'res_model': rel['res_model'],
+                'res_field': rel['res_field'],
+                'res_id': rel['res_id'],
+                'rel_type': rel['rel_type'],
+                'rel_name': rel['rel_name'],
+            }) for rel in found_relations]
+        })
+
+        return {
+            'name': 'Found resources',
+            'type': 'ir.actions.act_window',
+            'res_model': 'base.attachment.relfinder',
+            'res_id': new_relfinder.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    # @profile
+    def _get_model_attachment_relations(self, model_name):
+        """ Performs the check of attachments in "ir.attachment" according to the parameters passed.
+
+            :param string model_name: The name of the model in which to search for Many2many and Many2one fields related to 'ir.attachment'.
+            :return: tuple.
+                [0]: A dictionary representing the informations about a Many2many field, containing 'name', 'relation', 'column1', 'column2' keys.
+                [1]: A dictionary representing the informations about a Many2one field, containing 'name' key
+        """
+
+        Model = self.env[model_name]
+        # Trova tutti i campi many2many e many2one del modello che puntano a 'ir.attachment'
+        m2m_attachment_fields = []
+        m2o_attachment_fields = []
+        if not Model._abstract and model_name != 'base.attachment.relfinder':
+            fields_dict = Model.fields_get([], ['type', 'relation', 'store'])
+            for field_name, field_attrs in fields_dict.items():
+                model_field = Model._fields.get(field_name)
+                # Only stored and not inherited fields (from _inherits)   
+                if field_attrs.get('store') and not model_field.inherited:
+                    if field_attrs.get('type') == 'many2many' and field_attrs.get('relation') == 'ir.attachment':
+                        m2m_attachment_fields.append({
+                            'name': field_name,
+                            'relation': model_field.relation,
+                            'column1': model_field.column1,
+                            'column2': model_field.column2
+                        })
+                    elif field_attrs.get('type') == 'many2one' and field_attrs.get('relation') == 'ir.attachment':
+                        m2o_attachment_fields.append({
+                            'name': field_name
+                        })
+                    else:
+                        continue
+                else:
+                    continue
+        else:
+            return False
+
+        return m2m_attachment_fields, m2o_attachment_fields
+
+
     # @profile
     def _garbage_collect_rel_orphan_attachments(self, do_unlink=False, force_models=False):
         """ Performs the check of attachments in "ir.attachment" according to the parameters passed.
@@ -45,40 +112,18 @@ class IrAttachment(models.Model):
         # Tutti i modellli attivi
         act_models = []
         for model_name in self.env:
-            Model = self.env[model_name]
-            if not Model._abstract:
-                # Trova tutti i campi many2many e many2one del modello che puntano a 'ir.attachment'
-                m2m_attachment_fields = []
-                m2o_attachment_fields = []
-                fields_dict = Model.fields_get([], ['type', 'relation', 'store'])
-                for field_name, field_attrs in fields_dict.items():
-                    model_field = Model._fields.get(field_name)
-                    if field_attrs.get('store') and not model_field.inherited:
-                        if field_attrs.get('type') == 'many2many' and field_attrs.get('relation') == 'ir.attachment':
-                            m2m_attachment_fields.append({
-                                'name': field_name,
-                                'relation': model_field.relation,
-                                'column1': model_field.column1,
-                                'column2': model_field.column2
-                            })
-                            count['m2m'] += 1
-                        elif field_attrs.get('type') == 'many2one' and field_attrs.get('relation') == 'ir.attachment':
-                            m2o_attachment_fields.append({
-                                'name': field_name
-                            })
-                            count['m2o'] += 1
-                        else:
-                            continue
-                    else:
-                        continue
-            else:
-                continue
+            
+            rel_fields = self._get_model_attachment_relations(model_name)
+            if rel_fields == False:
+                continue # If no related fields are found, pass to the next model
+            
+            m2m_attachment_fields, m2o_attachment_fields = rel_fields
 
             if force_models:
                 is_active_model = True if model_name in force_models else False
-            else: 
+            else:                 
                 # Legge l'attributo che attiva il gc sul modello
-                is_active_model = getattr(Model, '_attachment_garbage_collector', False)
+                is_active_model = getattr(self.env[model_name], '_attachment_garbage_collector', False)
                 # Valida il tipo dell'attributo
                 if type(is_active_model) is not bool:
                     is_active_model = False
@@ -97,6 +142,9 @@ class IrAttachment(models.Model):
                     'm2o_attachment_fields': m2o_attachment_fields
                 })
                 count['model'] += 1
+                count['m2m'] += len(m2m_attachment_fields)
+                count['m2o'] += len(m2o_attachment_fields)
+
             if is_active_model:
                 act_models.append(model_name)
 
