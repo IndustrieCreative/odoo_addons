@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="field_recompute_dialog_view_form" model="ir.ui.view">
+    <field name="name">field.recompute.dialog.form</field>
+    <field name="model">field.recompute.dialog</field>
+    <field name="priority" eval="1"/>
+    <field name="arch" type="xml">
+      <form create="false">
+        <sheet>
+          <div>
+            With this tool you can manually trigger the recomputation
+            of a computed stored field for one or all records of a model.
+          </div>
+          <group>
+            <field name="action"/>
+            <field name="record_ref"
+                   attrs="{'invisible': [('action', '=', 'field')],
+                           'required': [('action', '=', 'record')]}"/>
+            <field name="model_id"
+                   attrs="{'invisible': [('action', '=', 'record')],
+                           'required': [('action', '=', 'field')]}"/>
+            <field name="field_id"/>
+          </group>
+        </sheet>
+        <footer>
+          <button string="Recompute field"
+                  name="action_execute"
+                  type="object"
+                  class="oe_highlight"/>
+          <button string="Annulla"
+                  special="cancel"
+                  class="oe_link"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="field_recompute_dialog_action_window" model="ir.actions.act_window" >
+    <field name="name">Recompute field tool</field>
+    <field name="res_model">field.recompute.dialog</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+
+  <!-- ACTION MENUS -->
+
+  <menuitem
+    id="field_recompute_utility_menu"
+    name="Utility"
+    parent="base.menu_custom"
+    sequence="100"/>
+
+  <menuitem
+    id="field_recompute_dialog_menu"
+    name="Recompute field tool"
+    parent="field_recompute_utility_menu"
+    action="field_recompute_dialog_action_window"
+    sequence="10"/>
+
+</odoo>
