@@ -18,9 +18,11 @@
                    attrs="{'invisible': [('action', '=', 'field')],
                            'required': [('action', '=', 'record')]}"/>
             <field name="model_id"
+                   options="{'no_create': True}"
                    attrs="{'invisible': [('action', '=', 'record')],
                            'required': [('action', '=', 'field')]}"/>
-            <field name="field_id"/>
+            <field name="field_id"
+                   options="{'no_create': True}"/>
           </group>
         </sheet>
         <footer>
