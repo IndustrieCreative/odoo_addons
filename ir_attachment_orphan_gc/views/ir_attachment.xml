@@ -22,7 +22,7 @@
         <separator/>
       </filter>
 
-      <filter name="attached_document_name" position="after">
+      <filter name="creation_month" position="after">
         <separator/>
          <filter name="group_res_model"
                  string="Resource Model"
