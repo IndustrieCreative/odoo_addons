@@ -104,7 +104,7 @@ class AttachmentRelation(models.TransientModel):
         selection = [('m2m', 'Many2many'),
                      ('m2o', 'Many2one')],
         readonly = True,
-        string = 'Resouce ID'
+        string = 'Relation Type'
     )
     rel_name = fields.Char(
         readonly = True,
