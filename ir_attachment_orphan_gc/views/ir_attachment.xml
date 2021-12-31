@@ -76,7 +76,7 @@
             <i>With this tool you can find all records, in any Model,
             that is related to this Attachment via Many2many or Many2one fields.</i>
           </div>
-          <div class="oe_button_box oe_left" name="button_box"
+          <div class="oe_button_box" name="button_box"
                style="margin-right:10px;">
             <button name="action_find_resource"
                     class="oe_stat_button oe_read_only"
