@@ -51,7 +51,7 @@
             <field name="attachment_gc_active"/>
           </group>
           <group>
-            <div class="oe_button_box oe_left" name="button_box"
+            <div class="oe_button_box" name="button_box"
                  style="margin-right:10px;">
               <button name="action_open_attachments"
                       class="oe_stat_button oe_read_only"
@@ -62,7 +62,7 @@
                 </span>
               </button>
             </div>
-            <div class="oe_button_box oe_left" name="button_box">
+            <div class="oe_button_box" name="button_box">
               <button name="action_gc_rel_orphan_attachments_safe"
                       class="oe_stat_button oe_read_only"
                       icon="fa-check-square"
