@@ -13,7 +13,7 @@ def do_fields_recompute(env, model_name, fields):
     model = env[model_name]
     recs = model.sudo().with_context(active_test=False).search([])
     for field in fields:
-        env.add_todo(model._fields[field], recs)
+        env.add_to_compute(model._fields[field], recs)
     _logger.info('**FIELD RECOMPUTE** Recomputation STARTED for the Model [ %s ] on ALL RECORDS. Recomputed fields are : %s.' % (model_name, ', '.join(fields)))            
     model.recompute()
     # env.cr.commit()
@@ -28,7 +28,7 @@ def do_record_fields_recompute(env, recs, fields):
     if not recs:
     	raise UserError('''You must specify at least one record in the "recs" argument.''')
     for field in fields:
-        env.add_todo(recs._fields[field], recs)
+        env.add_to_compute(recs._fields[field], recs)
     _logger.info('**FIELD RECOMPUTE** Recomputation STARTED for the Model [ %s ] on SPECIFIED RECORDS. Recomputed fields are : %s.' % (recs._name, ', '.join(fields)))            
     recs.recompute()
     # env.cr.commit()
