@@ -11,5 +11,8 @@
     'version': '13.0.1.0.0',
     'depends': ['base'],
     'application': False,
-    'data': ['wizard/field_recompute_dialog_view.xml'],
+    'data': [
+        'security/ir.model.access.csv',
+        'wizard/field_recompute_dialog_view.xml'
+    ],
 }

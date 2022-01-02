@@ -11,6 +11,7 @@
     'depends': ['base'],
     'application': False,
     'data': [
+        'security/ir.model.access.csv',
         'views/ir_attachment.xml',
         'views/ir_model.xml',
         'wizard/base_attachment_resfinder_views.xml',
