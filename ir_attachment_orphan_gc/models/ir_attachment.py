@@ -96,6 +96,7 @@ class IrAttachment(models.Model):
             :param list force_models: List of strings containing the names of the models to be checked.
             :return: True
         """
+        self = self.sudo()
 
         _logger.info('ATTACHMENTS GC - STARTED' + ('.' if do_unlink else ' in safe mode.'))
         count = {'model': 0, 'm2m': 0, 'm2o': 0}
