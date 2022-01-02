@@ -51,34 +51,27 @@
             <field name="attachment_gc_active"/>
           </group>
           <group>
-            <div class="oe_button_box oe_left" name="button_box"
-                 style="margin-right:10px;">
+            <div class="text-center">
               <button name="action_open_attachments"
-                      class="oe_stat_button oe_read_only"
+                      class="btn-info btn-lg oe_read_only"
                       icon="fa-list"
                       type="object">
-                <span class="o_stat_text">
-                  Open attachemnts
-                </span>
+                <span>Open attachemnts</span>
               </button>
             </div>
-            <div class="oe_button_box oe_left" name="button_box">
+            <div class="text-center">
               <button name="action_gc_rel_orphan_attachments_safe"
-                      class="oe_stat_button oe_read_only"
+                      class="btn-warning btn-lg oe_read_only mr-2"
                       icon="fa-check-square"
                       type="object">
-                <span class="o_stat_text">
-                  Mark only orphans
-                </span>
+                <span>Mark only orphans</span>
               </button>
               <button name="action_gc_rel_orphan_attachments_unlink"
-                      class="oe_stat_button oe_read_only"
+                      class="btn-danger btn-lg oe_read_only"
                       icon="fa-trash"
                       type="object"
                       confirm="Are you sure?">
-                <span class="o_stat_text">
-                  Mark &amp; Delete orphans
-                </span>
+                <span>Mark &amp; Delete orphans</span>
               </button>
             </div>
           </group>

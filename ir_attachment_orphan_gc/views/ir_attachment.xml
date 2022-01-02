@@ -76,16 +76,12 @@
             <i>With this tool you can find all records, in any Model,
             that is related to this Attachment via Many2many or Many2one fields.</i>
           </div>
-          <div class="oe_button_box oe_left" name="button_box"
-               style="margin-right:10px;">
+          <div name="button_box" class="text-center">
             <button name="action_find_resource"
-                    class="oe_stat_button oe_read_only"
+                    class="btn-info btn-lg oe_read_only"
                     icon="fa-search"
-                    type="object"
-                    style="margin-top: 12px;">
-              <span class="o_stat_text">
-                Find resources...
-              </span>
+                    type="object">
+              <span>Find resources...</span>
             </button>
           </div>
         </group>
