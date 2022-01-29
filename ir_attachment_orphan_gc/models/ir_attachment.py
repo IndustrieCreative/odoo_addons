@@ -9,8 +9,8 @@ _logger = logging.getLogger(__name__)
 class IrAttachment(models.Model):
     _inherit = 'ir.attachment'
 
-    CG_MODULE_NAME_SAFELIST = []
-    CG_MODULE_PREFIX_SAFELIST = ['ir.']
+    CG_MODEL_NAME_SAFELIST = []
+    CG_MODEL_PREFIX_SAFELIST = ['ir.']
 
     maybe_orphan = fields.Boolean(
         readonly = True,
@@ -103,9 +103,9 @@ class IrAttachment(models.Model):
 
         # Prepara la safelist effettiva
         cg_name_safelist = [ model_name
-            for model_name in self.env if model_name[0:3] in self.CG_MODULE_PREFIX_SAFELIST
+            for model_name in self.env if model_name[0:3] in self.CG_MODEL_PREFIX_SAFELIST
         ]
-        cg_name_safelist = list(set(cg_name_safelist + self.CG_MODULE_NAME_SAFELIST))
+        cg_name_safelist = list(set(cg_name_safelist + self.CG_MODEL_NAME_SAFELIST))
         _logger.info('ATTACHMENTS GC - The model safelist is: %s' % ', '.join(cg_name_safelist))
 
         # Tutti i modelli che hanno campi Many2many o Many2one che puntano a "ir.attachemnt"
