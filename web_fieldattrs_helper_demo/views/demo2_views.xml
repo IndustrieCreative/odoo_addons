@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- TREE VIEWS -->
+
+  <record id="demo2_view_tree" model="ir.ui.view">
+    <field name="name">Web helper field attrs Demo 2 - tree</field>
+    <field name="model">web.fieldattrs.helper.demo2</field>
+    <field name="arch" type="xml">
+      <tree>
+        <field name="id"/>
+        <field name="name"/>
+
+        <field name="trigger2_readonly_field_char"/>
+        <field name="trigger2_required_field_char"/>
+        <field name="trigger2_invisible_field_char"/>
+        <field name="target2_field_char"/>
+
+        <field name="trigger2_readonly_field_selection"/>
+        <field name="trigger2_required_field_selection"/>
+        <field name="trigger2_invisible_field_selection"/>
+        <field name="target2_field_selection"/>
+
+        <button name="action_demo"
+                string="Action Demo 2"
+                type="object"
+                class="btn-primary btn-sm"/> <!-- oe_read_only -->
+      </tree>
+    </field>
+  </record>
+
+  <!-- KANBAN VIEWS -->
+
+  <record id="demo2_view_kanban" model="ir.ui.view">
+    <field name="name">Web helper field attrs Demo 2 - kanban</field>
+    <field name="model">web.fieldattrs.helper.demo2</field>
+    <field name="arch" type="xml">
+      <kanban default_group_by="target2_field_selection"
+              group_create="false"
+              group_edit="false"
+              group_delete="false"
+              quick_create="false">
+        <templates>
+          <t t-name="kanban-box">
+            <div class="oe_kanban_global_click">
+              <div class="oe_kanban_content">
+                <div class="oe_kanban_card">
+                  <div>
+                    <i class="fa fa-user" role="img" aria-label="User icon" title="User icon"/>
+                    <b><field name="name" /></b>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </t>
+        </templates>
+      </kanban>
+    </field>
+  </record>
+
+  <!-- CALENDAR VIEWS -->
+
+  <record id="demo2_view_calendar" model="ir.ui.view">
+    <field name="name">Web helper field attrs Demo 2 - calendar</field>
+    <field name="model">web.fieldattrs.helper.demo2</field>
+    <field name="priority" eval="1"/>
+    <field name="arch" type="xml">
+      <calendar string="Demo 2"
+                date_start="target2_field_start_datetime"
+                date_stop="target2_field_stop_datetime"
+                mode="month"
+                color="trigger2_readonly_field_selection"
+                quick_add="0"
+                event_open_popup="False"
+                all_day="target2_field_allday_boolean">
+        <field name="name"/>
+        <field name="target2_field_char"/>
+        <field name="target2_field_selection"/>
+      </calendar>
+    </field>
+  </record>
+
+  <!-- FORM VIEWS -->
+
+  <record id="demo2_view_form" model="ir.ui.view">
+    <field name="name">Web helper field attrs Demo 2 - form</field>
+    <field name="model">web.fieldattrs.helper.demo2</field>
+    <field name="priority" eval="1"/>
+    <field name="arch" type="xml">
+      <form>
+        <sheet>
+          <h1>Demo 2</h1>
+
+          <group>
+            <field name="name"/>
+          </group>
+
+          <group string="No Unlink" name="no_unlink" class="asc_label_nowrap">
+            <field name="trigger2_no_unlink"/>
+          </group>
+          
+          <group string="Char" name="char" class="asc_label_nowrap">
+            <field name="trigger2_readonly_field_char"/>
+            <field name="trigger2_required_field_char"/>
+            <field name="trigger2_invisible_field_char"/>
+            <field name="target2_field_char"/>
+          </group>
+
+          <group string="Selection" name="selection" class="asc_label_nowrap">
+            <field name="trigger2_readonly_field_selection"/>
+            <field name="trigger2_required_field_selection"/>
+            <field name="trigger2_invisible_field_selection"/>
+            <field name="target2_field_selection"/>
+          </group>
+
+          <group string="Many2one to Demo 1" name="m2o_demo1" class="asc_label_nowrap">
+            <field name="trigger2_readonly_field_m2o_demo1"/>
+            <field name="trigger2_required_field_m2o_demo1"/>
+            <field name="trigger2_invisible_field_m2o_demo1"/>
+            <field name="target2_field_m2o_demo1"/>
+          </group>
+
+          <group string="One2many to Demo 1 (editable embedded tree)" name="o2m_demo1" class="asc_label_nowrap"
+                 colspan="2">
+            <field name="trigger2_readonly_field_o2m_demo1"/>
+            <field name="trigger2_required_field_o2m_demo1"/>
+            <field name="trigger2_invisible_field_o2m_demo1"/>
+            <field name="trigger2_column_invisible_o2m_field_demo1"/>
+            <field name="target2_field_o2m_demo1">
+              <tree editable="bottom" name="o2m_demo1_tree">
+                <field name="name"/>
+
+                <field name="trigger1_readonly_field_selection"/>
+                <field name="trigger1_required_field_selection"/>
+                <field name="trigger1_invisible_field_selection"/>
+                <field name="target1_field_selection"/>
+              </tree>
+            </field>
+          </group>
+
+          <group string="Many2many to Demo 1 (embedded view)" name="m2m_demo1" class="asc_label_nowrap"
+                 colspan="2">
+            <field name="trigger2_readonly_field_m2m_demo1"/>
+            <field name="trigger2_required_field_m2m_demo1"/>
+            <field name="trigger2_invisible_field_m2m_demo1"/>
+            <field name="trigger2_column_invisible_m2m_field_demo1"/>
+            <field name="target2_field_m2m_demo1"/>
+            <!-- <field name="target2_field_m2m_demo1">
+              <tree editable="bottom" name="m2m_demo1_tree">
+                <field name="name"/>
+
+                <field name="trigger1_readonly_field_selection"/>
+                <field name="trigger1_required_field_selection"/>
+                <field name="trigger1_invisible_field_selection"/>
+                <field name="target1_field_selection"/>
+              </tree>
+            </field> -->
+          </group>
+
+          <group string="Calendar" name="calendar" class="asc_label_nowrap">
+            <field name="trigger2_readonly_calendar_start_datetime"/>
+            <field name="trigger2_required_calendar_start_datetime"/>
+            <field name="trigger2_invisible_calendar_start_datetime"/>
+            <field name="target2_field_start_datetime"/>
+            <newline/>
+            <field name="trigger2_readonly_calendar_stop_datetime"/>
+            <field name="trigger2_required_calendar_stop_datetime"/>
+            <field name="trigger2_invisible_calendar_stop_datetime"/>
+            <field name="target2_field_stop_datetime"/>
+            <newline/>
+            <field name="trigger2_readonly_calendar_allday_boolean"/>
+            <field name="trigger2_required_calendar_allday_boolean"/>
+            <field name="trigger2_invisible_calendar_allday_boolean"/>
+            <field name="target2_field_allday_boolean"/>
+          </group>
+
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- ACTIONS WINDOW -->
+
+  <record id="web_fieldattrs_helper_demo2_action_window" model="ir.actions.act_window" >
+    <field name="name">Demo 2</field>
+    <field name="res_model">web.fieldattrs.helper.demo2</field>
+    <field name="view_mode">tree,form,kanban,calendar</field>
+  </record>
+
+</odoo>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<odoo> 
+
+  <record id="view_view_tree_inherit_web_fieldattrs_helper" model="ir.ui.view">
+    <field name="name">ir.ui.view.inherit.web.fieldattrs.helper</field>
+    <field name="model">ir.ui.view</field>
+    <field name="inherit_id" ref="base.view_view_tree" />
+    <field name="arch" type="xml">
+
+      <xpath expr="//tree[1]" position="inside">
+        <field name="fah_implemented"/>
+      </xpath>
+
+    </field>
+  </record>
+
+  <record id="view_view_form_inherit_web_fieldattrs_helper" model="ir.ui.view">
+    <field name="name">ir.ui.view.inherit.web.fieldattrs.helper</field>
+    <field name="model">ir.ui.view</field>
+    <field name="inherit_id" ref="base.view_view_form" />
+    <field name="arch" type="xml">
+      
+      <xpath expr="//notebook[1]" position="before">
+        <div attrs="{'invisible': [('fah_implemented', '=', False)]}" class="fah-blink"
+             style="display: flex; float: right; align-items: center;">
+          <img src="/web_fieldattrs_helper/static/description/icon.png" alt="Icon" style="width: 37px;"/>
+          <div>FAH is active!</div>
+        </div>
+        <field name="fah_implemented" invisible="1"/>
+      </xpath>
+
+      <xpath expr="//notebook[1]" position="inside">
+        <page string="Field Attrs Helper (FAH)" groups="base.group_no_one"
+              attrs="{'invisible': [('fah_implemented', '=', False)]}">
+          <notebook>
+            <page string="View" groups="base.group_no_one">
+              <separator string="Overridden view (including inherited views)"/>
+              <field name="fah_overridden_view"
+                     widget="ace" options="{'mode': 'xml'}"/>
+            </page>
+            <page string="Model" groups="base.group_no_one">
+              <separator string="FAH Status on this model"/>
+              <field name="fah_model_status"
+                     widget="ace" options="{'mode': 'python'}"/>
+            </page>
+          </notebook>
+        </page>
+      </xpath>
+
+
+    </field>
+  </record>
+
+</odoo>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- TREE VIEWS -->
+
+  <record id="demo4_view_tree" model="ir.ui.view">
+    <field name="name">Web helper field attrs Demo 4 - tree</field>
+    <field name="model">web.fieldattrs.helper.demo4</field>
+    <field name="arch" type="xml">
+      <tree>
+        <field name="id"/>
+        <field name="name"/>
+
+        <field name="target4_field_char"/>
+        <field name="target4_field_selection"/>
+        <field name="target4_field_m2o_demo3"/>
+
+        <field name="target3_field_char"/>
+        <field name="target3_field_selection"/>
+        <field name="target3_field_m2o_demo1"/>
+        <field name="target3_field_o2m_demo1"/>
+        <field name="target3_field_m2m_demo1"/>
+
+      </tree>
+    </field>
+  </record>
+
+  <!-- FORM VIEWS -->
+
+  <record id="demo4_view_form" model="ir.ui.view">
+    <field name="name">Web helper field attrs Demo 4 - form</field>
+    <field name="model">web.fieldattrs.helper.demo4</field>
+    <field name="priority" eval="1"/>
+    <field name="arch" type="xml">
+      <form>
+        <sheet>
+          <h1>Demo 4</h1>
+
+          <group>
+            <field name="name"/>
+          </group>
+
+          <group string="Char" name="char" class="asc_label_nowrap">
+            <field name="target4_field_char"/>
+          </group>
+          <group string="Selection" name="selection" class="asc_label_nowrap">
+            <field name="target4_field_selection"/>
+          </group>
+          <group string="Many2one to Demo 3" name="m2o_demo3" class="asc_label_nowrap">
+            <field name="target4_field_m2o_demo3"/>
+          </group>
+          
+          <group string="Demo 3 - Char" name="demo3_char" class="asc_label_nowrap">
+            <field name="target3_field_char"/>
+          </group>
+          <group string="Demo 3 - Selection" name="demo3_selection" class="asc_label_nowrap">
+            <field name="target3_field_selection"/>
+          </group>
+          <group string="Demo 3 - Many2one to Demo 1" name="demo3_m2o_demo1" class="asc_label_nowrap">
+            <field name="target3_field_m2o_demo1"/>
+          </group>
+          <group string="Demo 3 - One2many to Demo 1 (embedded view)" name="demo3_o2m_demo1" class="asc_label_nowrap"
+                 colspan="2">
+            <field name="target3_field_o2m_demo1">
+              <tree editable="bottom" name="o2m_demo1_tree">
+                <field name="name"/>
+
+                <field name="trigger1_readonly_field_selection"/>
+                <field name="trigger1_required_field_selection"/>
+                <field name="trigger1_invisible_field_selection"/>
+                <field name="target1_field_selection"/>
+              </tree>
+            </field>
+          </group>
+
+          <group string="Demo 3 - Many2many to Demo 1 (editable embedded tree)" name="demo3_m2m_demo1" class="asc_label_nowrap"
+                 colspan="2">
+            <field name="target3_field_m2m_demo1">
+              <tree editable="bottom" name="m2m_demo1_tree">
+                <field name="name"/>
+
+                <field name="trigger1_readonly_field_selection"/>
+                <field name="trigger1_required_field_selection"/>
+                <field name="trigger1_invisible_field_selection"/>
+                <field name="target1_field_selection"/>
+              </tree>
+            </field>
+          </group>
+        
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- ACTIONS WINDOW -->
+
+  <record id="web_fieldattrs_helper_demo4_action_window" model="ir.actions.act_window" >
+    <field name="name">Demo 4</field>
+    <field name="res_model">web.fieldattrs.helper.demo4</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+</odoo>

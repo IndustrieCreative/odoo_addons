@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ROOT MENU --> 
+  <menuitem
+    id="menu_root"
+    name="Demo Field Attrs Helper"
+    sequence="500"/>
+
+  <!-- MAIN ENTITIES CONTAINERS -->
+
+    <menuitem
+        id="menu_demo1"
+        name="Demo 1"
+        parent="menu_root"
+        sequence="10"
+        action="web_fieldattrs_helper_demo1_action_window"/>
+
+    <menuitem
+        id="menu_demo2"
+        name="Demo 2"
+        parent="menu_root"
+        sequence="20"
+        action="web_fieldattrs_helper_demo2_action_window"/>
+
+    <menuitem
+        id="menu_demo3"
+        name="Demo 3"
+        parent="menu_root"
+        sequence="30"
+        action="web_fieldattrs_helper_demo3_action_window"/>
+
+    <menuitem
+        id="menu_demo4"
+        name="Demo 4"
+        parent="menu_root"
+        sequence="40"
+        action="web_fieldattrs_helper_demo4_action_window"/>
+
+</odoo>

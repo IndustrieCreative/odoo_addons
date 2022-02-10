@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<odoo> 
+
+  <record id="demo2_extend_view_form" model="ir.ui.view">
+    <field name="name">Web helper field attrs Demo 2 - form inherit</field>
+    <field name="model">web.fieldattrs.helper.demo2</field>
+    <field name="inherit_id" ref="demo2_view_form"/>
+    <field name="arch" type="xml">
+
+      <tree name="o2m_demo1_tree" position="inside">
+        <field name="trigger1_readonly_field_char"/>
+        <field name="trigger1_required_field_char"/>
+        <field name="trigger1_invisible_field_char"/>
+        <field name="target1_field_char"/>
+      </tree>
+
+      <!-- <tree name="m2m_demo1_tree" position="inside">
+        <field name="trigger1_readonly_field_char"/>
+        <field name="trigger1_required_field_char"/>
+        <field name="trigger1_invisible_field_char"/>
+        <field name="target1_field_char"/>
+      </tree> -->
+
+    </field>
+  </record>
+
+</odoo>

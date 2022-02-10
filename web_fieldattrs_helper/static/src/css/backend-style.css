@@ -1,0 +1,14 @@
+/* No wrapping the field "string" text*/
+.fah_label_nowrap .o_td_label {
+    white-space: nowrap;
+}
+
+/* Blinking element */
+.fah-blink {
+  animation: fah-blinker 1s linear infinite;
+}
+@keyframes fah-blinker {
+  50% {
+    opacity: 0;
+  }
+}

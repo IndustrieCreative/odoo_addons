@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<odoo> 
+
+  <record id="view_model_tree_inherit_web_fieldattrs_helper" model="ir.ui.view">
+    <field name="name">ir.model.tree.inherit.web.fieldattrs.helper</field>
+    <field name="model">ir.model</field>
+    <field name="inherit_id" ref="base.view_model_tree" />
+    <field name="arch" type="xml">
+
+      <xpath expr="//tree[1]" position="inside">
+        <field name="fah_implemented"/>
+      </xpath>
+
+    </field>
+  </record>
+
+  <record id="view_model_form_inherit_web_fieldattrs_helper" model="ir.ui.view">
+    <field name="name">ir.model.form.inherit.web.fieldattrs.helper</field>
+    <field name="model">ir.model</field>
+    <field name="inherit_id" ref="base.view_model_form" />
+    <field name="arch" type="xml">
+      
+      <field name="modules" position="after">
+        <field name="fah_implemented"/>
+      </field>
+
+      <xpath expr="//notebook[1]" position="inside">
+        <page string="Field Attrs Helper (FAH)" groups="base.group_no_one">
+          <div><p></p></div>
+          <group>
+            <field name="fah_model_status"
+                   widget="ace" options="{'mode': 'python'}"/>
+          </group>
+        </page>
+      </xpath>
+
+
+    </field>
+  </record>
+
+</odoo>

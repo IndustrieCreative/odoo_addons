@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<odoo> 
+
+  <record id="demo1_extend_view_tree" model="ir.ui.view">
+    <field name="name">Web helper field attrs Demo 1 - tree inherit</field>
+    <field name="model">web.fieldattrs.helper.demo1</field>
+    <field name="inherit_id" ref="demo1_view_tree"/>
+    <field name="arch" type="xml">
+
+      <field name="target1_field_selection" position="after">
+        
+        <field name="trigger1_readonly_field_char"/>
+        <field name="trigger1_required_field_char"/>
+        <field name="trigger1_invisible_field_char"/>
+        <field name="target1_field_char"/>
+      
+      </field>
+
+    </field>
+  </record>
+
+  <record id="demo1_extend_view_form" model="ir.ui.view">
+    <field name="name">Web helper field attrs Demo 1 - form inherit</field>
+    <field name="model">web.fieldattrs.helper.demo1</field>
+    <field name="inherit_id" ref="demo1_view_form"/>
+    <field name="arch" type="xml">
+
+      <group name="selection" position="after">
+
+        <group string="Char (inherit)" name="fields" class="asc_label_nowrap">
+          <field name="trigger1_readonly_field_char"/>
+          <field name="trigger1_required_field_char"/>
+          <field name="trigger1_invisible_field_char"/>
+          <field name="target1_field_char"/>
+        </group>
+
+        <group string="Text (inherit)" name="fields" class="asc_label_nowrap">
+          <field name="trigger1_readonly_field_text"/>
+          <field name="trigger1_required_field_text"/>
+          <field name="trigger1_invisible_field_text"/>
+          <field name="target1_field_text"/>
+        </group>
+
+        <group string="Html (inherit)" name="fields" class="asc_label_nowrap">
+          <field name="trigger1_readonly_field_html"/>
+          <field name="trigger1_required_field_html"/>
+          <field name="trigger1_invisible_field_html"/>
+          <field name="target1_field_html"/>
+        </group>
+
+        <group string="Date (inherit)" name="fields" class="asc_label_nowrap">
+          <field name="trigger1_readonly_field_date"/>
+          <field name="trigger1_required_field_date"/>
+          <field name="trigger1_invisible_field_date"/>
+          <field name="target1_field_date"/>
+        </group>
+        
+        <group string="Datetime (inherit)" name="fields" class="asc_label_nowrap">
+          <field name="trigger1_readonly_field_datetime"/>
+          <field name="trigger1_required_field_datetime"/>
+          <field name="trigger1_invisible_field_datetime"/>
+          <field name="target1_field_datetime"/>
+        </group>
+
+      </group>
+
+    </field>
+  </record>
+
+</odoo>

@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- TREE VIEWS -->
+
+  <record id="demo1_view_tree" model="ir.ui.view">
+    <field name="name">Web helper field attrs Demo 1 - tree</field>
+    <field name="model">web.fieldattrs.helper.demo1</field>
+    <field name="arch" type="xml">
+      <tree>
+          <field name="id"/>
+          <field name="name"/>
+
+          <field name="trigger1_readonly_field_selection"/>
+          <field name="trigger1_required_field_selection"/>
+          <field name="trigger1_invisible_field_selection"/>
+          <field name="target1_field_selection"/>
+      </tree>
+    </field>
+  </record>
+
+  <!-- FORM VIEWS -->
+
+  <record id="demo1_view_form" model="ir.ui.view">
+    <field name="name">Web helper field attrs Demo 1 - form</field>
+    <field name="model">web.fieldattrs.helper.demo1</field>
+    <field name="priority" eval="1"/>
+    <field name="arch" type="xml">
+      <form>
+        <sheet>
+          <h1>Demo 1</h1>
+
+          <group>
+            <field name="name"/>
+          </group>
+
+          <group string="Block Ops" name="no_ops" class="asc_label_nowrap">
+            <field name="trigger1_no_unlink"/>
+            <field name="trigger1_no_write"/>
+            <field name="trigger1_no_read"/>
+            <field name="trigger1_no_create"/>
+          </group>
+
+          <group string="#FOO# TAG" name="foo_tag" class="asc_label_nowrap">
+            <field name="trigger1_readonly_tag_foo"/>
+            <field name="trigger1_required_tag_foo"/>
+            <field name="trigger1_invisible_tag_foo"/>
+            <field name="trigger1_column_invisible_tag_foo"/>
+          </group>
+
+          <group string="GROUP Visibility by #FOO# TAG (trigger by field)" name="group-target-1" class="asc_label_nowrap">
+            <div id="div-visibility-test">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+          </group>
+
+          <group string="BUTTON Visibility by #FOO# TAG (trigger by field)" name="button" class="asc_label_nowrap">
+            <button name="action_demo"
+                    string="Action Demo 1"
+                    type="object"
+                    class="btn-primary"/> <!-- oe_read_only -->
+          </group>
+
+          <group string="DIV Visibility by TAG #USER MESSAGE# #ADMIN MESSAGE# (trigger by user groups)" name="tag-visibility" class="asc_label_nowrap">
+            <div id="div-target-1"
+                 style="float:left;">
+              This <code>div</code> is displayed according to the groups to which the user belongs:
+              <h3>NORMAL USER</h3>
+              The user <b>does not belong to the group</b> "web_fieldattrs_helper.fah_global_bypass_group".
+            </div>
+            <div name="div-target-2"
+                 style="float:left;">
+              This <code>div</code> is displayed according to the groups to which the user belongs:
+              <h3>ADMIN USER</h3>
+              The user <b>belongs to the group</b> "web_fieldattrs_helper.fah_global_bypass_group".
+            </div>
+          </group>
+
+          <group string="Selection (tagged #FOO#)" name="selection" class="asc_label_nowrap">
+            <field name="trigger1_readonly_field_selection"/>
+            <field name="trigger1_required_field_selection"/>
+            <field name="trigger1_invisible_field_selection"/>
+            <field name="target1_field_selection"/>
+          </group>
+
+          <group string="Integer" name="integer" class="asc_label_nowrap">
+            <field name="trigger1_readonly_field_integer"/>
+            <field name="trigger1_required_field_integer"/>
+            <field name="trigger1_invisible_field_integer"/>
+            <field name="target1_field_integer"/>
+          </group>
+          
+          <group string="Float" name="float" class="asc_label_nowrap">
+            <field name="trigger1_readonly_field_float"/>
+            <field name="trigger1_required_field_float"/>
+            <field name="trigger1_invisible_field_float"/>
+            <field name="target1_field_float"/>
+          </group>
+          
+          <group string="Monetary" name="monetary" class="asc_label_nowrap">
+            <field name="trigger1_readonly_field_monetary"/>
+            <field name="trigger1_required_field_monetary"/>
+            <field name="trigger1_invisible_field_monetary"/>
+            <field name="target1_field_monetary"/>
+          </group>
+         
+          <group string="Many2one to Demo 2" name="m2o_demo2" class="asc_label_nowrap">
+            <field name="trigger1_readonly_field_m2o_demo2"/>
+            <field name="trigger1_required_field_m2o_demo2"/>
+            <field name="trigger1_invisible_field_m2o_demo2"/>
+            <field name="target1_field_m2o_demo2"/>
+          </group>
+          
+          <group string="Many2one to Demo 3" name="m2o_demo3" class="asc_label_nowrap">
+            <field name="trigger1_readonly_field_m2o_demo3"/>
+            <field name="trigger1_required_field_m2o_demo3"/>
+            <field name="trigger1_invisible_field_m2o_demo3"/>
+            <field name="target1_field_m2o_demo3"/>
+          </group>
+          
+          <group string="One2many to Demo 2 (editable embedded tree)" name="o2m_demo2" class="asc_label_nowrap"
+                 colspan="2">
+            <field name="trigger1_readonly_field_o2m_demo2"/>
+            <field name="trigger1_required_field_o2m_demo2"/>
+            <field name="trigger1_invisible_field_o2m_demo2"/>
+
+            <field name="target1_field_o2m_demo2">
+              <tree editable="bottom" name="o2m_tree">
+                <field name="name"/>
+
+                <field name="trigger2_readonly_field_char"/>
+                <field name="trigger2_required_field_char"/>
+                <field name="trigger2_invisible_field_char"/>
+                <field name="target2_field_char"/>
+
+                <field name="trigger2_readonly_field_selection"/>
+                <field name="trigger2_required_field_selection"/>
+                <field name="trigger2_invisible_field_selection"/>
+                <field name="target2_field_selection"/>
+
+                <button name="action_demo"
+                        string="Action Demo 2"
+                        type="object"
+                        class="btn-primary btn-sm"/> <!-- oe_read_only -->
+              </tree>
+            </field>
+
+            <field name="trigger1_readonly_o2m_field_demo2"/>
+            <field name="trigger1_required_o2m_field_demo2"/>
+            <field name="trigger1_invisible_o2m_field_demo2"/>
+            <field name="trigger1_column_invisible_o2m_field_demo2"/>
+
+            <field name="trigger1_invisible_o2m_button_demo2"/>
+            <field name="trigger1_column_invisible_o2m_button_demo2"/>
+
+          </group>
+          
+          <group string="One2many to Demo 3 (editable embedded tree)" name="o2m_demo3" class="asc_label_nowrap"
+                 colspan="2">
+            <field name="trigger1_readonly_field_o2m_demo3"/>
+            <field name="trigger1_required_field_o2m_demo3"/>
+            <field name="trigger1_invisible_field_o2m_demo3"/>
+            <field name="target1_field_o2m_demo3" widget="many2many">
+              <tree editable="bottom" name="o2m_demo3_tree">
+                <field name="name"/>
+
+                <field name="target3_field_char"/>
+                <field name="target3_field_selection"/>
+                <field name="target3_field_m2o_demo1"/>
+              </tree>
+            </field>
+            <field name="trigger1_column_invisible_o2m_field_demo3"/>
+          </group>
+          
+          <group string="Many2many to Demo 2 (embedded tree+form)" name="m2m_demo2" class="asc_label_nowrap"
+                 colspan="2">
+            <field name="trigger1_readonly_field_m2m_demo2"/>
+            <field name="trigger1_required_field_m2m_demo2"/>
+            <field name="trigger1_invisible_field_m2m_demo2"/>
+            <field name="target1_field_m2m_demo2">
+              <tree name="m2m_tree">
+                    <!-- editable="bottom" create="true" edit="true" delete="true" -->
+                <field name="name"/>
+
+                <field name="trigger2_readonly_field_m2o_demo1"/>
+                <field name="trigger2_required_field_m2o_demo1"/>
+                <field name="trigger2_invisible_field_m2o_demo1"/>
+                <field name="target2_field_m2o_demo1"/>
+
+                <field name="trigger2_readonly_field_selection"/>
+                <field name="trigger2_required_field_selection"/>
+                <field name="trigger2_invisible_field_selection"/>
+                <field name="target2_field_selection"/>
+
+                <button name="action_demo"
+                        string="Action Demo 2"
+                        type="object"
+                        class="btn-primary btn-sm"/> <!-- oe_read_only -->
+              </tree>
+
+              <!-- <kanban default_group_by="target2_field_selection"
+                      group_create="false"
+                      group_edit="false"
+                      group_delete="false"
+                      quick_create="false">
+                <field name="target2_field_selection" />
+                <templates>
+                  <t t-name="kanban-box">
+                    <div class="oe_kanban_global_click">
+                      <div class="oe_kanban_content">
+                        <div class="oe_kanban_card">
+                          <div>
+                            <i class="fa fa-user" role="img" aria-label="User icon" title="User icon"/>
+                            <b><field name="name" /></b>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </t>
+                </templates>
+              </kanban> -->
+
+              <form>
+                <group>
+                  <field name="name"/>
+                  
+                  <field name="trigger2_readonly_field_char"/>
+                  <field name="trigger2_required_field_char"/>
+                  <field name="trigger2_invisible_field_char"/>
+                  <field name="target2_field_char"/>
+
+                  <field name="trigger2_readonly_field_selection"/>
+                  <field name="trigger2_required_field_selection"/>
+                  <field name="trigger2_invisible_field_selection"/>
+                  <field name="target2_field_selection"/>
+                  
+                  <field name="trigger2_column_invisible_o2m_field_demo1"/>
+
+                  <field name="target2_field_o2m_demo1">
+                    <tree editable="bottom" name="o2m_demo1_tree">
+                      <field name="name"/>
+
+                      <field name="trigger1_readonly_field_selection"/>
+                      <field name="trigger1_required_field_selection"/>
+                      <field name="trigger1_invisible_field_selection"/>
+                      <field name="target1_field_selection"/>
+                    </tree>
+                  </field>
+
+                </group>
+              </form>
+
+            </field>
+            <field name="trigger1_column_invisible_m2m_field_demo2"/>
+          </group>
+          
+          <group string="Many2many to Demo 3 (editable embedded tree)" name="m2m_demo3" class="asc_label_nowrap"
+                 colspan="2">
+            <field name="trigger1_readonly_field_m2m_demo3"/>
+            <field name="trigger1_required_field_m2m_demo3"/>
+            <field name="trigger1_invisible_field_m2m_demo3"/>
+            <!-- <field name="target1_field_m2m_demo3" mode="from"/> -->
+            <field name="target1_field_m2m_demo3">
+              <tree editable="bottom" name="m2m_demo3_tree">
+                <field name="name"/>
+
+                <field name="target3_field_char"/>
+                <field name="target3_field_selection"/>
+                <field name="target3_field_m2o_demo1"/>
+              </tree>
+            </field>
+            <field name="trigger1_column_invisible_m2m_field_demo3"/>
+          </group>
+
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- ACTIONS WINDOW -->
+
+  <record id="web_fieldattrs_helper_demo1_action_window" model="ir.actions.act_window" >
+    <field name="name">Demo 1</field>
+    <field name="res_model">web.fieldattrs.helper.demo1</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+</odoo>
