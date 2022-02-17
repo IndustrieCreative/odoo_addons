@@ -620,7 +620,7 @@ Attributes that can be managed: ``readonly``, ``required``, ``invisible``.
     }
 ```
 
-<ins>** Comodel fields linked to the model in dot.notation and optional tag.**</ins>.  
+<ins>**Comodel fields linked to the model in dot.notation and optional tag.**</ins>.  
 Attributes that can be managed: ``readonly``, ``required``, ``invisible``,
 ``column_invisible``.
 ```python
