@@ -1439,7 +1439,7 @@ improvement of what I started. Thank you.
   ``_FAH_XML_INJECT_ATTRS`` has to be left on True all the time, so it is useless.
 
 - Move in the decorator ``@api.fah_depends`` the two ``super()`` calls with related control
-  logic, which currently must always be returned in the overrides of
+  logic, which currently must always be reproduced in the overrides of
   ``_fah_compute_helper_fields()``.
 
 
