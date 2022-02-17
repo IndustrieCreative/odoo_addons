@@ -1347,7 +1347,7 @@ The traditional paradigm has multiple advantages:
 The penultimate point highlights the fact that with the method proposed here, until a
 certain condition occurs, a particular command will never be executed. But if that command
 hides an error, for example of syntax, we will never know it unless we test all the
-conditions. This highlights that in order to have reliability with the proposed method we
+conditions. This highlights that, in order to have reliability with the proposed method, we
 have to write ad hoc tests for each implementation of the _fah_compute_helper_fields()
 method.
 
