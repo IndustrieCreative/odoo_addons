@@ -1,0 +1,84 @@
+
+/* 0: Da trattare = GRIGIO */
+table.o_list_table tr.o_data_row.bg-gray {
+    color: #4C4C4C;
+    background-color: #D9D9D9;
+}
+table.o_list_table tr.o_data_row.bg-gray:hover,
+table.o_list_table tr.o_data_row.bg-gray:focus-within {
+    color: #FFFFFF;
+    background-color: #B5B3B3;
+}
+/* 1: Contattato o spedito mail = GIALLO */
+table.o_list_table tr.o_data_row.bg-yellow {
+    color: #4C4C4C;
+    background-color: #FFFF00;
+}
+table.o_list_table tr.o_data_row.bg-yellow:hover,
+table.o_list_table tr.o_data_row.bg-yellow:focus-within {
+    color: #FFFFFF;
+    background-color: #A8A800;
+}
+/* 2: Prossimo corso = MARRONE */
+table.o_list_table tr.o_data_row.bg-brown {
+    color: #FFFFFF;
+    background-color: #DE6707;
+}
+table.o_list_table tr.o_data_row.bg-brown:hover,
+table.o_list_table tr.o_data_row.bg-brown:focus-within {
+    color: #FFFFFF;
+    background-color: #B65303;
+}
+/* 3: Tenere il posto = BLU */
+table.o_list_table tr.o_data_row.bg-blue {
+    color: #4C4C4C;
+    background-color: #5DD4FF;
+}
+table.o_list_table tr.o_data_row.bg-blue:hover,
+table.o_list_table tr.o_data_row.bg-blue:focus-within {
+    color: #FFFFFF;
+    background-color: #4095B4;
+}
+/* 4: Da recuperare = VIOLA */
+table.o_list_table tr.o_data_row.bg-purple {
+    color: #FFFFFF;
+    background-color: #A78EC7;
+    font-style: unset;
+}
+table.o_list_table tr.o_data_row.bg-purple:hover,
+table.o_list_table tr.o_data_row.bg-purple:focus-within {
+    color: #FFFFFF;
+    background-color: #7D6A96;
+}
+/* -3: Iscritto = VERDE */
+table.o_list_table tr.o_data_row.bg-green {
+    color: #4C4C4C;
+    background-color: #92D050;
+}
+table.o_list_table tr.o_data_row.bg-green:hover,
+table.o_list_table tr.o_data_row.bg-green:focus-within {
+    color: #FFFFFF;
+    background-color: #689539;
+}
+/* -4: Rinuncia = ROSSO */
+table.o_list_table tr.o_data_row.bg-red {
+    color: #FFFFFF;
+    background-color: #F57575;
+}
+table.o_list_table tr.o_data_row.bg-red:hover,
+table.o_list_table tr.o_data_row.bg-red:focus-within {
+    color: #FFFFFF;
+    background-color: #BD5A5A;
+}
+/* -1/-10/-100: Eliminato/Cancellato/Prova = BIANCO */
+table.o_list_table tr.o_data_row.bg-white {
+    color: #4C4C4C;
+    background-color: #FFFFFF;
+    font-style: italic;
+}
+table.o_list_table tr.o_data_row.bg-white:hover,
+table.o_list_table tr.o_data_row.bg-white:focus-within {
+    color: #000000;
+    background-color: #DEDEDE;
+    font-style: italic;
+}

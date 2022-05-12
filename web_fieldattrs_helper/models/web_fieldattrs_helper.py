@@ -385,6 +385,11 @@ class FieldAttrsHelper(models.AbstractModel):
     #         self.env.add_to_compute(self._fields[field], self)
     #     self.recompute()
 
+
+    # @api.onchange('aggiorna_qty_segnalati')
+    # def onchange_aggiorna_segnalazione_stato(self):
+    #     self.select_referente_aziendale_id = self.select_referente_aziendale_id.id
+
     # ===================================================================
     # ORM OVERRIDES
     # Check that ATTRS and OPS are complied with.
