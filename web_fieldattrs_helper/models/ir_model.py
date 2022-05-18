@@ -87,7 +87,7 @@ _FAH_BLACKLIST_CORE_FIELDS = {Model._FAH_BLACKLIST_CORE_FIELDS}
 _FAH_STARTER_FIELD = {pformat(Model._FAH_STARTER_FIELD)}
 _FAH_FIRST_TRIGGER_FIELD = {pformat(Model._FAH_FIRST_TRIGGER_FIELD)}
 -------------------
-# Model's class inheritance:
+# Model's triggered methods:
 _fah_compute_helper_fields._depends = {Model._fah_compute_helper_fields._depends}
 _fah_onchange_starter_field._onchange = {Model._fah_onchange_starter_field._onchange}
 -------------------

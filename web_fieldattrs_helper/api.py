@@ -23,5 +23,5 @@ def fah_depends(*args):
         return inner_fn
     return wrapper_fn
 
-# I register the new decorator in the core api to save a line in the imports.
+# Register the new decorator in the core api to save a line in the imports.
 api.fah_depends = fah_depends
