@@ -60,6 +60,8 @@ class FieldAttrsHelper(models.AbstractModel):
         type(self)._FAH_OPS_TUPLES = list(zip(self._FAH_OPS, self._FAH_OPS_FIELDS, self._FAH_OPS_MSG_FIELDS)) # (attr, helper field name, message helper field name)
 
         type(self)._FAH_BYPASS_FIELD = self._FAH_FIELDS_PREFIX+'bypass'
+        type(self)._FAH_STARTER_FIELD = self._FAH_FIELDS_PREFIX+'starter'
+        type(self)._FAH_FIRST_TRIGGER_FIELD = self._FAH_FIELDS_PREFIX+'first_trigger'
         type(self)._FAH_BYPASS_GROUPS_ALL = [self._FAH_BYPASS_CORE_GROUP, *self._FAH_BYPASS_GROUPS_ADD]
         
         type(self)._FAH_BLACKLIST_CORE_FIELDS = [
@@ -71,6 +73,12 @@ class FieldAttrsHelper(models.AbstractModel):
         type(self)._FAH_FIELD_REGISTRY = dict()
         type(self)._FAH_COMPUTE_MRO_CHAIN = dict()
 
+        # Set the onchange starter field dinamically
+        @api.onchange(self._FAH_STARTER_FIELD)
+        def _fah_onchange_starter_field(self):
+            self[self._FAH_FIRST_TRIGGER_FIELD] = not self[self._FAH_FIRST_TRIGGER_FIELD]
+        type(self)._fah_onchange_starter_field = _fah_onchange_starter_field
+
         return init_res
 
     #=================================================
@@ -81,6 +89,7 @@ class FieldAttrsHelper(models.AbstractModel):
     @api.model
     def _setup_complete(self):
         res = super(FieldAttrsHelper, self)._setup_complete()
+        # if self._name != 'web.fieldattrs.helper':
         model_target_fields, model_target_field_tags = self._fah_get_model_target_fields_and_tags()
         self._FAH_FIELD_REGISTRY.update({
             'trigger_fields': self._fah_get_trigger_fields(), # set
@@ -138,7 +147,7 @@ class FieldAttrsHelper(models.AbstractModel):
         
             # Bypass field
             add_helper(self._FAH_BYPASS_FIELD, fields.Boolean(
-                store = True,
+                store = True, # Must be stored!
                 # NOTE: Groups are only set at the view level and the check on
                 #       writing to this field is done directly at write().
                 #       Don't set the groups here becaise it will cause secondary
@@ -146,6 +155,16 @@ class FieldAttrsHelper(models.AbstractModel):
                 # groups = ','.join(self._FAH_BYPASS_GROUPS_ALL),
                 default = False,
                 help = 'Field to bypass checks on this single record.',
+            ))
+            add_helper(self._FAH_STARTER_FIELD, fields.Boolean(
+                store = False, # Must be not stored!
+                default = True,
+                help = 'Field to trigger the onchange method that will modify the _FAH_FIRST_TRIGGER_FIELD on new records.',
+            ))
+            add_helper(self._FAH_FIRST_TRIGGER_FIELD, fields.Boolean(
+                store = False, # Must be not stored!
+                default = False,
+                help = 'Field to start the first computation of the helper fields on new records.',
             ))
 
     #============================================================
@@ -284,7 +303,7 @@ class FieldAttrsHelper(models.AbstractModel):
     #======================================
     # ** SETUP **
     # Compute method for the helper fields
-    @api.depends(*_fah_trigger_fields)
+    @api.depends(lambda self: [self._FAH_FIRST_TRIGGER_FIELD])
     def _fah_compute_helper_fields(self, attr_reg=False, eval_mode=False, override=False):
         """ Write the content of the "attr_reg" on the helper fields
         :param FahAttrRegistry eval_mode:  Attributes registry. If False, a new empty one will be created.
@@ -385,10 +404,6 @@ class FieldAttrsHelper(models.AbstractModel):
     #         self.env.add_to_compute(self._fields[field], self)
     #     self.recompute()
 
-
-    # @api.onchange('aggiorna_qty_segnalati')
-    # def onchange_aggiorna_segnalazione_stato(self):
-    #     self.select_referente_aziendale_id = self.select_referente_aziendale_id.id
 
     # ===================================================================
     # ORM OVERRIDES

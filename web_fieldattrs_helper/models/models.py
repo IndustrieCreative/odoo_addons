@@ -72,6 +72,13 @@ class Base(models.AbstractModel):
                                         'readonly': '0',
                                     })
                                     xml_group.append(xml_field)
+                            # STARTER TRIGGERS
+                            xml_group.append(etree.Element('field', {
+                                'name': self._FAH_STARTER_FIELD,
+                            }))
+                            xml_group.append(etree.Element('field', {
+                                'name': self._FAH_FIRST_TRIGGER_FIELD,
+                            }))
                             # BYPASS
                             xml_group.append(etree.Element('field', {
                                 'name': self._FAH_BYPASS_FIELD, 
@@ -97,6 +104,15 @@ class Base(models.AbstractModel):
                                         'readonly': '1',
                                     })
                                     main_node.append(xml_field)
+                            # STARTER TRIGGERS
+                            main_node.append(etree.Element('field', {
+                                'name': self._FAH_STARTER_FIELD,
+                                'invisible': '1',
+                            }))
+                            main_node.append(etree.Element('field', {
+                                'name': self._FAH_FIRST_TRIGGER_FIELD,
+                                'invisible': '1',
+                            }))
                             # BYPASS
                             xml_div = etree.Element('div', {
                                 'class': '',
@@ -132,6 +148,15 @@ class Base(models.AbstractModel):
                                 'name': chf_name, 
                                 'invisible': '0' if comodel._FAH_DEBUG_MODE else '1',
                                 'readonly': '0' if comodel._FAH_DEBUG_MODE else '1',
+                            }))
+                            # STARTER TRIGGERS
+                            embed_node.append(etree.Element('field', {
+                                'name': comodel._FAH_STARTER_FIELD,
+                                'invisible': '1',
+                            }))
+                            embed_node.append(etree.Element('field', {
+                                'name': comodel._FAH_FIRST_TRIGGER_FIELD,
+                                'invisible': '1',
                             }))
                         if embed_node.tag == 'form':
                             xml_div = etree.Element('div', {
