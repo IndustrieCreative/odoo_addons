@@ -10,7 +10,6 @@ from odoo.exceptions import UserError, ValidationError
 from .. attr_registry import FahAttrRegistry, _msg_prefix
 
 _logger = logging.getLogger(__name__+' | '+_msg_prefix +' :\n')
-    
 
 # @todo: - use tuples instead of lists wherever possible!
 #        - use set instead of list wherever you need to store
@@ -34,6 +33,15 @@ _logger = logging.getLogger(__name__+' | '+_msg_prefix +' :\n')
 #        is a risk of performing operations on the abstract model, which should
 #        always be "inert".
 
+# @todo: implement the "only-check" message, to perfoorm only the check,
+#        but without inject the attrs into the view.
+
+# @todo: ?? Integrate the attr_reg directly into the recordset, since their "lifetime"
+#           is the same. Create an ad-hoc "slot" in the model that implements the helper.
+
+# @todo: √ If the field is defined "readonly", "required" o "invisible"(?)
+#          in python field definition, then set that value if that attr is not in the attr_reg.
+#        √ Add a "fah_force_save" argument in field definition.
 
 # AbstractModel to be inherited for dynamic management of field attributes in views
 class FieldAttrsHelper(models.AbstractModel):
