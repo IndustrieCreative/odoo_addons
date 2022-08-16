@@ -175,6 +175,9 @@ class FieldAttrsHelper(models.AbstractModel):
                 help = 'Field to start the first computation of the helper fields on new records.',
             ))
 
+    def _valid_field_parameter(self, field, name):
+        return name == 'fah_force_save' or super()._valid_field_parameter(field, name)
+
     #============================================================
     # ** MODEL INIT **
     # Add attributes to the model that are used as parameters.
@@ -339,16 +342,43 @@ class FieldAttrsHelper(models.AbstractModel):
             log_msg_list = ['- '+ attr +': '+ str(attr_reg[attr]) for attr in [*self._FAH_ATTRS, *self._FAH_OPS]]
             _logger.debug(log_msg_pre + '\n'.join(log_msg_list))
 
-        # If in "eval_mode" it stops here and writes nothing.
-        # NOTE: It is useless trying to return something here, because it seems that the
-        #       @api.depends decorator always returns False.
         # If override=='compute' it stops here. The entire MRO chain has been ascended.
         # (the "first round" is ended)
         # From now on it will start to compute in the "correct" order until it reaches
         # the last extension/override.
-        if eval_mode or (override == 'compute'):
+        if override == 'compute':
             return
         
+        # Now all computations are done.
+
+        # Add to the attr_reg the attrs declared in fields definitions
+        # For all records in the recordset
+        for r in self:
+            # For all the enabled attrs except 'column_invisible'
+            for attr, helper_field_name in self._FAH_ATTRS_TUPLES:
+                if attr != 'column_invisible':
+                    # For all target fields
+                    for target_field in self._FAH_FIELD_REGISTRY['model_target_fields']:
+                        # If the field is not in the attr_reg
+                        if target_field not in attr_reg[attr].get(r.id, dict()):
+                            # If the attr is declared in field definition 
+                            if getattr(self._fields[target_field], attr, False):
+                                # Add the target field.
+                                # If the field is computed or in its definition the argument
+                                # "fah_force_save" is passed
+                                if getattr(self._fields[target_field], 'compute', False) or \
+                                    getattr(self._fields[target_field], 'fah_force_save', False):
+                                    # Do not perform the check
+                                    attr_reg.set([target_field], attr, True, r, msg=self._FAH_FORCE_COMMAND)
+                                else:
+                                    attr_reg.set([target_field], attr, True, r)
+
+        # If in "eval_mode" it stops here and writes nothing.
+        # NOTE: It is useless trying to return something here, because it seems that the
+        #       @api.depends decorator always returns False.
+        if eval_mode:
+            return
+
         delimiter = self._FAH_ATTRS_FIELDS_DELIMITER
 
         # Final writing, to be done only here, in the abstract model.
@@ -360,11 +390,9 @@ class FieldAttrsHelper(models.AbstractModel):
                 # For each enabled attr
                 for attr, helper_field_name in self._FAH_ATTRS_TUPLES:
                     # Get the values to be written for the attr and the current record.
-                    fields_to_attr = attr_reg[attr].get(r.id, None)
+                    fields_to_attr = attr_reg[attr].get(r.id, dict())
                     # Updates the attribute's helper field.
-                    if fields_to_attr == None:
-                        r[helper_field_name] = '[]'
-                    else:
+                    if fields_to_attr:
                         tagged_fields = []
                         for field_name in fields_to_attr:
                             # If not a tag, it adds delimiters to the field name.
@@ -375,7 +403,9 @@ class FieldAttrsHelper(models.AbstractModel):
                                 tagged_fields.append(field_name)
                         # Writes the field
                         r[helper_field_name] = json.dumps(tagged_fields)
-                
+                    else:
+                        r[helper_field_name] = '[]'
+
                 # Only if ops helper fields have been created.
                 if self._FAH_CREATE_OPS_FIELDS:
                     # For each enabled op
