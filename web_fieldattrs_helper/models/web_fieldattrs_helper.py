@@ -175,6 +175,8 @@ class FieldAttrsHelper(models.AbstractModel):
     # Types of "attrs" and "ops" you want to manage
     _FAH_ATTRS = ['readonly', 'required', 'invisible', 'column_invisible'] # NOTE: leave it as list() !
     _FAH_OPS = ['no_read', 'no_write', 'no_create', 'no_unlink']
+    # Type of views you want to inject the attrs into
+    _FAH_VIEWS = ['form', 'tree', 'embedded_form', 'embedded_tree']
     # Prefix of helper fields, customisable to avoid name collisions.
     _FAH_FIELDS_PREFIX = 'fah_'
     # Target field name delimiters, to avoid false positives in the "like" (e.g. "name" and "surname")
@@ -421,9 +423,9 @@ class FieldAttrsHelper(models.AbstractModel):
             return 0 if count else []
 
         denied_ids = self._check_ops('no_read', self.browse(ids), 'READ', eval_mode=True)
-        allowed_ids = set(ids) - denied_ids
+        allowed_ids = [r_id for r_id in ids if r_id not in denied_ids] if denied_ids else ids
 
-        return len(allowed_ids) if count else list(allowed_ids)
+        return len(allowed_ids) if count else allowed_ids
 
     def read(self, fields=None, load='_classic_read'):
         self._check_ops('no_read', self, 'READ')

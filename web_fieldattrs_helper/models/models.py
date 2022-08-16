@@ -37,7 +37,7 @@ class Base(models.AbstractModel):
             # - - - - - - -
             # MODEL FIELDS
             if isinstance(self, FieldAttrsHelper):
-                if self._FAH_XML_INJECT:
+                if self._FAH_XML_INJECT and 'form' in self._FAH_VIEWS:
                     # If a <sheet> node exists, use that, otherwise use the <form>
                     sheet_nodes = doc.xpath("//sheet[not (ancestor::field)]")
                     if len(sheet_nodes) > 0:
@@ -137,12 +137,19 @@ class Base(models.AbstractModel):
             #       it always injects at the end of the root.
             #       For now, on embdedded/inline forms it does not look for the possible sheet,
             #       and does not inject helper fields in debug mode.
+
             for embed_node in doc.xpath("//tree[(ancestor::field)] | //form[(ancestor::field)]"):
                 model, rel_field_name, comodel, level = self._get_embedding_model_and_field(view_id, embed_node)
                 
                 # If the comodel implements the helper's abstract model
                 if isinstance(comodel, FieldAttrsHelper):
                     if comodel._FAH_XML_INJECT:
+                        if embed_node.tag == 'tree' and 'embedded_tree' in comodel._FAH_VIEWS:
+                            pass
+                        elif embed_node.tag == 'form' and 'embedded_form' in comodel._FAH_VIEWS:
+                            pass
+                        else:
+                            continue
                         for chf_name in comodel._FAH_ATTRS_FIELDS:
                             embed_node.append(etree.Element('field', {
                                 'name': chf_name, 
@@ -173,7 +180,7 @@ class Base(models.AbstractModel):
 
         elif view_type == 'tree':
             if isinstance(self, FieldAttrsHelper):        
-                if self._FAH_XML_INJECT:
+                if self._FAH_XML_INJECT and 'tree' in self._FAH_VIEWS:
                     for tree_node in doc.xpath("//tree"):
                         for hf_name in self._FAH_ATTRS_FIELDS:
                             tree_node.append(etree.Element('field', {
@@ -207,7 +214,7 @@ class Base(models.AbstractModel):
             # MODEL FIELDS
             if isinstance(self, FieldAttrsHelper):
                 # Set attrs for all fields not inside embedded/inline views
-                if self._FAH_XML_INJECT and self._FAH_XML_INJECT_ATTRS:
+                if self._FAH_XML_INJECT and self._FAH_XML_INJECT_ATTRS and 'form' in self._FAH_VIEWS:
                     for tf_name, tags in target_fields.items():            
                         for field_node in doc.xpath("//field[@name='%s' and not (ancestor::field)]" % tf_name):
                             tags_dict = {'model': tags}
@@ -233,7 +240,7 @@ class Base(models.AbstractModel):
 
                 if isinstance(comodel, FieldAttrsHelper):
                     # Set attrs for all fields not inside embedded/inline views
-                    if comodel._FAH_XML_INJECT and comodel._FAH_XML_INJECT_ATTRS:
+                    if comodel._FAH_XML_INJECT and comodel._FAH_XML_INJECT_ATTRS and 'embedded_form' in comodel._FAH_VIEWS:
                         # ______
                         # FIELDS
                         comodel_target_fields = comodel._FAH_FIELD_REGISTRY['model_target_fields']
@@ -265,7 +272,7 @@ class Base(models.AbstractModel):
                 #       are the names of the relational fields.
                 embedded_target_fields = dict()
                 if isinstance(model, FieldAttrsHelper):
-                    if model._FAH_XML_INJECT and model._FAH_XML_INJECT_ATTRS:
+                    if model._FAH_XML_INJECT and model._FAH_XML_INJECT_ATTRS and 'embedded_tree' in model._FAH_VIEWS:
                         embedded_target_fields = model._FAH_FIELD_REGISTRY['embedded_target_fields']
                 rel_embedded_target_fields = embedded_target_fields.get(rel_field_name, dict())
                 
@@ -273,7 +280,7 @@ class Base(models.AbstractModel):
                 # (those that are driven by the comodel).
                 comodel_target_fields = dict()
                 if isinstance(comodel, FieldAttrsHelper):
-                    if comodel._FAH_XML_INJECT and comodel._FAH_XML_INJECT_ATTRS:
+                    if comodel._FAH_XML_INJECT and comodel._FAH_XML_INJECT_ATTRS and 'embedded_tree' in comodel._FAH_VIEWS:
                         comodel_target_fields = comodel._FAH_FIELD_REGISTRY['model_target_fields']
                 
                 # Turns the dict keys into a set
@@ -365,7 +372,7 @@ class Base(models.AbstractModel):
         
         elif view_type == 'tree':
             if isinstance(self, FieldAttrsHelper):
-                if self._FAH_XML_INJECT and self._FAH_XML_INJECT_ATTRS:
+                if self._FAH_XML_INJECT and self._FAH_XML_INJECT_ATTRS and 'tree' in self._FAH_VIEWS:
                     for tf_name, tags in target_fields.items():            
                         for field_node in doc.xpath("//field[@name='%s']" % tf_name):
                             tags_dict = {'model': tags}

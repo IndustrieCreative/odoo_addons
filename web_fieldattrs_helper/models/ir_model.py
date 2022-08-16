@@ -55,6 +55,7 @@ class IrModel(models.Model):
 # SETTINGS:
 _FAH_ATTRS = {pformat(Model._FAH_ATTRS)}
 _FAH_OPS = {pformat(Model._FAH_OPS)}
+_FAH_VIEWS = {pformat(Model._FAH_VIEWS)}
 _FAH_FIELDS_PREFIX = {pformat(Model._FAH_FIELDS_PREFIX)}
 _FAH_ATTRS_FIELDS_DELIMITER = {pformat(Model._FAH_ATTRS_FIELDS_DELIMITER)}
 _FAH_ATTRS_TAG_DELIMITER = {pformat(Model._FAH_ATTRS_TAG_DELIMITER)}
