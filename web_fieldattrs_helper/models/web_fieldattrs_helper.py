@@ -313,7 +313,7 @@ class FieldAttrsHelper(models.AbstractModel):
     #======================================
     # ** SETUP **
     # Compute method for the helper fields
-    @api.depends(lambda self: [self._FAH_FIRST_TRIGGER_FIELD])
+    @api.depends(lambda self: [self._FAH_FIRST_TRIGGER_FIELD, self._FAH_BYPASS_FIELD])
     def _fah_compute_helper_fields(self, attr_reg=False, eval_mode=False, override=False):
         """ Write the content of the "attr_reg" on the helper fields
         :param FahAttrRegistry eval_mode:  Attributes registry. If False, a new empty one will be created.
