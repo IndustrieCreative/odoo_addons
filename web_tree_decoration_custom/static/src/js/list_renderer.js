@@ -26,3 +26,9 @@ odoo.define("web_tree_decoration_custom.ListRenderer", function (require) {
         },
     });
 });
+
+// FOR FIELD DECORATIONS... study the following:
+// _processArch() -> _processNode() -> _processField()     @ /odoo/addons/web/static/src/js/views/basic/basic_view.js
+// ... _render() or reset() ...
+// _applyDecorations() @ /odoo/addons/web/static/src/js/fields/abstract_field.js
+
