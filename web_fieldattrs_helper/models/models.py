@@ -189,7 +189,7 @@ class Base(models.AbstractModel):
                                 'readonly': '0' if self._FAH_DEBUG_MODE else '1',
                             }))
         # Search and Kanban do not seem to require any special attention.
-        elif view_type in ('search', 'kanban', 'calendar'):
+        elif view_type in ('search', 'kanban', 'calendar', 'pivot'):
             pass
         else:
             # pass
@@ -385,7 +385,7 @@ class Base(models.AbstractModel):
                             self._fah_set_field_attrs(self, elem_node, attr_id, False, current_view_id, tags=tags_dict)
 
         # Search and Kanban do not seem to require any special attention.
-        elif view_type in ('search', 'kanban', 'calendar'):
+        elif view_type in ('search', 'kanban', 'calendar', 'pivot'):
             pass
         else:
             if isinstance(self, FieldAttrsHelper):
