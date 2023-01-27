@@ -11,21 +11,22 @@
           <group>
             <field name="attachment_id" string="Search for Attachment"/>
           </group>
-          <group string="All Resources using this Attachment">
-            <field name="relation_ids" nolabel="1">
-              <tree>
-                <field name="res_model"/>
-                <field name="res_field"/>
-                <field name="res_id"/>
-                <field name="rel_type"/>
-                <field name="rel_name"/>
-                <button name="action_open_resource"
-                        string="Open"
-                        type="object"
-                        class="btn-primary btn-sm"/>
-              </tree>
-            </field>
-          </group>
+          <separator string="All Resources using this Attachment through M2O and M2M fields"/>
+          <div class="mb-2"><i>Note that Binary fields with "attachment=True" are not considered
+            because there is no risk of them being orphaned.</i></div>
+          <field name="relation_ids" nolabel="1">
+            <tree>
+              <field name="res_model"/>
+              <field name="res_field"/>
+              <field name="res_id"/>
+              <field name="rel_type"/>
+              <field name="rel_name"/>
+              <button name="action_open_resource"
+                      string="Open"
+                      type="object"
+                      class="btn-primary btn-sm"/>
+            </tree>
+          </field>
         </sheet>
       </form>
     </field>

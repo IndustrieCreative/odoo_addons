@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from odoo import fields, models
+# import datetime
+from io import StringIO
+# from dateutil.parser import isoparse
+from odoo import fields, models #, api
 # from odoo.tools.profiler import profile
 
 _logger = logging.getLogger(__name__)
@@ -11,6 +14,16 @@ class IrAttachment(models.Model):
 
     CG_MODEL_NAME_SAFELIST = []
     CG_MODEL_PREFIX_SAFELIST = ['ir.']
+    CG_MODEL_FIELD_IGNORELIST = ['message_main_attachment_id']
+
+    GC_AV_ACTIVE_PARAM = 'ir.autovacuum.attachment.orphan.active'
+    GC_AV_ACTIVE_DEFAULT = False # boolean
+    
+    GC_AV_UNLINK_PARAM = 'ir.autovacuum.attachment.orphan.unlink'
+    GC_AV_UNLINK_DEFAULT = False # boolean
+
+    GC_AV_WEEKDAY_PARAM = 'ir.autovacuum.attachment.orphan.weekday'
+    GC_AV_WEEKDAY_DEFAULT = False # datetime.date.weekday() integer from 0 to 6 or False
 
     maybe_orphan = fields.Boolean(
         readonly = True,
@@ -96,9 +109,15 @@ class IrAttachment(models.Model):
             :param list force_models: List of strings containing the names of the models to be checked.
             :return: True
         """
+        # Store the logger output to a string stream handler
+        logger = logging.getLogger(__name__)
+        log_stream = StringIO()
+        stream_handler = logging.StreamHandler(log_stream)
+        logger.addHandler(stream_handler)
+
         self = self.sudo()
 
-        _logger.info('ATTACHMENTS GC - STARTED' + ('.' if do_unlink else ' in safe mode.'))
+        logger.info('ATTACHMENTS GC - STARTED' + ('.' if do_unlink else ' in safe mode.'))
         count = {'model': 0, 'm2m': 0, 'm2o': 0}
 
         # Prepara la safelist effettiva
@@ -106,7 +125,7 @@ class IrAttachment(models.Model):
             for model_name in self.env if model_name[0:3] in self.CG_MODEL_PREFIX_SAFELIST
         ]
         cg_name_safelist = list(set(cg_name_safelist + self.CG_MODEL_NAME_SAFELIST))
-        _logger.info('ATTACHMENTS GC - The model safelist is: %s' % ', '.join(cg_name_safelist))
+        logger.info('ATTACHMENTS GC - The model safelist is: %s' % ', '.join(cg_name_safelist))
 
         # Tutti i modelli che hanno campi Many2many o Many2one che puntano a "ir.attachemnt"
         rel_models = []
@@ -128,12 +147,12 @@ class IrAttachment(models.Model):
                 # Valida il tipo dell'attributo
                 if type(is_active_model) is not bool:
                     is_active_model = False
-                    _logger.warning('ATTACHMENTS GC - The "_attachment_garbage_collector" attribute of the model "%s" is not boolean. The attriburte has been ignored.' % model_name)
+                    logger.warning('ATTACHMENTS GC - The "_attachment_garbage_collector" attribute of the model "%s" is not boolean. The attriburte has been ignored.' % model_name)
             
             # Ignora come attivi i modelli nella safelist
             if is_active_model and (model_name in cg_name_safelist):
                 is_active_model = False
-                _logger.warning('ATTACHMENTS GC - According to the safelist, the model "%s" cannot be active. The attachments of this model have been ignored.' % model_name)
+                logger.warning('ATTACHMENTS GC - According to the safelist, the model "%s" cannot be active. The attachments of this model have been ignored.' % model_name)
 
             # Se punta a "ir.attachment" o è un modello attivo
             if m2m_attachment_fields or m2o_attachment_fields:
@@ -150,31 +169,30 @@ class IrAttachment(models.Model):
                 act_models.append(model_name)
 
             if is_active_model and not (m2m_attachment_fields or m2o_attachment_fields):
-                _logger.warning('ATTACHMENTS GC - The active model "%s" does not appear to have any relational fields (m2m or m2o) pointing to "ir.attachment".' % model_name)
+                logger.warning('ATTACHMENTS GC - The active model "%s" does not appear to have any relational fields (m2m or m2o) pointing to "ir.attachment".' % model_name)
 
-        _logger.info('ATTACHMENTS GC - %d  Many2many and  %d  Many2one fields related to "ir.attachment" were found on  %d  different models.' % (count['m2m'], count['m2o'], count['model']))
-        _logger.info('ATTACHMENTS GC - The service %s on this  %d  models: %s' % (
+        logger.info('ATTACHMENTS GC - %d  Many2many and  %d  Many2one fields related to "ir.attachment" were found on  %d  different models.' % (count['m2m'], count['m2o'], count['model']))
+        logger.info('ATTACHMENTS GC - The service %s on  %d  models: %s' % (
             ('is forced to be active' if force_models else 'is active'),
             len(act_models),
             ', '.join(act_models))
         )
 
-        # Tutti gli attachment associati ai modelli "attivi" con "res_model" ma senza "res_id"
+        # Check if all Attachments that meet the following conditions are orphaned:
+        # - linked to any res_model in "act_models" list
+        # - unused since at least one day (create_date and write_date) so as to
+        #   exclude files uploaded via the Chatter, via "many2many_widget" or
+        #   reports created on-the-fly.
+        # NOTE: Binary fields are auto excluded by _search() override on ir.attachment
+        #       if "id" or "res_field" aren't in the search domain.
+        limit_date = fields.Datetime.subtract(fields.Datetime.now(), days=1)
         all_active_models_attachments = self.sudo().with_context(active_test=False).search([
-            '&',
-                ('res_model', 'in', act_models),
-                '|', # Così non tocca gli attachment dei messaggi nel chatter, che
-                     # sono già gestiti dal "mail.thread" mixin. 
-                     # Gli attachment dei campi Binary (con "attachment=True") vengono
-                     # già nascosti da _search() se il campo "res_field" o "id" non è
-                     # presente nel dominio (hard-coded record rule).
-                    ('res_id', '=', 0), # Di solito viene scritto 0...
-                    ('res_id', '=', False) # ma a volte portebbe essere False.
-                    # NB: [('res_id','=',0), ('res_field','!=',False)] sembra non debba
-                    #     mai accadere. Controllare di nuovo in futuro.
+            ('res_model', 'in', act_models),
+            ('create_date', '<', limit_date),
+            ('write_date', '<', limit_date)
         ])
         
-        _logger.info('ATTACHMENTS GC - In the active models,  %d  attachments were found which need to be checked.' % len(all_active_models_attachments))
+        logger.info('ATTACHMENTS GC - In the active models,  %d  attachments were found which need to be checked.' % len(all_active_models_attachments))
 
         # Tutti gli attachment dei modelli "attivi" usati da record di qualunque altro modello
         used_attachments = self.env['ir.attachment'] # empty recordset
@@ -189,11 +207,12 @@ class IrAttachment(models.Model):
                 used_attachments |= m2m_field_used_attachments
 
             for res_m2o_field in model['m2o_attachment_fields']:
-                m2o_field_used_attachments = Model.sudo().with_context(active_test=False).search([
-                    (res_m2o_field['name'], '!=', False)
-                ]).mapped(res_m2o_field['name'])
+                if res_m2o_field['name'] not in self.CG_MODEL_FIELD_IGNORELIST:
+                    m2o_field_used_attachments = Model.sudo().with_context(active_test=False).search([
+                        (res_m2o_field['name'], '!=', False)
+                    ]).mapped(res_m2o_field['name'])
                 
-                used_attachments |= m2o_field_used_attachments
+                    used_attachments |= m2o_field_used_attachments
 
 
         # Individua gli attachment orfani
@@ -205,34 +224,138 @@ class IrAttachment(models.Model):
         # Gli attachment non ancora marcati, e da marcare
         maybe_orphan_attachments = orphan_attachments - confirmed_orphan_attachments
 
-        count['oa'] = len(orphan_attachments)
-        count['coa'] = len(confirmed_orphan_attachments)
-        count['poa'] = len(maybe_orphan_attachments)
+        count.update({
+            'oa': len(orphan_attachments),
+            'coa': len(confirmed_orphan_attachments),
+            'poa': len(maybe_orphan_attachments)
+        })
 
+        count.update({
+            'oa_mb': '{0:.2f} MiB'.format(sum(orphan_attachments.mapped('file_size'))/1048576),
+            'coa_mb': '{0:.2f} MiB'.format(sum(confirmed_orphan_attachments.mapped('file_size'))/1048576),
+            'poa_mb': '{0:.2f} MiB'.format(sum(maybe_orphan_attachments.mapped('file_size'))/1048576)
+        })
+
+        log_deleted_attachments = []
         # Esegue le operazioni
         if do_unlink:
+            log_deleted_attachments = ', '.join(confirmed_orphan_attachments.mapped(lambda a: f'({a.name}, {a.checksum})'))
             confirmed_orphan_attachments.sudo().unlink()
         maybe_orphan_attachments.sudo().write({'maybe_orphan': True})
         not_orphan_attachments.sudo().write({'maybe_orphan': False})
 
-        _logger.info('ATTACHMENTS GC - DONE.')
-        _logger.info('ATTACHMENTS GC - Found  %d  possible orphan attachments on the active models.' % count['oa'])
+        logger.info('ATTACHMENTS GC - DONE.')
+        logger.info('ATTACHMENTS GC - Found  %d  possible orphan attachments on the active models (size %s).' % (count['oa'], count['oa_mb']))
         if do_unlink:
-            _logger.info('ATTACHMENTS GC - DELETED  %d  confirmed orphan attachments.' % count['coa'])
+            logger.info('ATTACHMENTS GC - DELETED  %d  confirmed orphan attachments (size %s).' % (count['coa'], count['coa_mb']))
         else:
-            _logger.info('ATTACHMENTS GC - SKIPPED  %d  confirmed orphan attachments (not deleted).' % count['coa'])
-        _logger.info('ATTACHMENTS GC - MARKED  %d  new possible orphan attachments.' % count['poa'])
+            logger.info('ATTACHMENTS GC - SKIPPED  %d  confirmed orphan attachments (not deleted) (size %s).' % (count['coa'], count['coa_mb']))
+        logger.info('ATTACHMENTS GC - MARKED  %d  new possible orphan attachments (size %s).' % (count['poa'], count['poa_mb']))
+        if do_unlink:
+            logger.info('ATTACHMENTS GC - DELETED FILES  %s.' % (log_deleted_attachments or 'None'))
 
-        return True
+        # Return the logger text in order to permit to override this method
+        # and log the operation with a 3rd party tool.
+        log_out = stream_handler.stream.getvalue()
+        return log_out
 
         # REMEMBER THAT...
         # Attachments left orphaned during the creation of a message/note/email
         # (while still in a transient) that eventually failed are already deleted by
-        # self.emv['mail.thread']._garbage_collect_attachments(). In practice, this
-        # deletes attachments with ('res_model', '=', 'mail.compose.message') created
-        # or modified at least one day before.
+        # self.env['mail.compose.message']._gc_lost_attachments(). In practice, this
+        # deletes attachments with ('res_model', '=', 'mail.compose.message')
+        # and ('res_id', '=', False) and created or modified at least one day before.
 
 
-    # @todo: Implementare registro/log degli attachment cancellati (hash, tipo, dimensione, res_name, res_model)
+    # Method to be called by the overrided cron _run_vacuum_cleaner() on 'ir.autovacuum'
+    def _gc_orphan_attachments_autovacuum(self):
+        # Get cron active status System Parameter
+        gc_active = self.env['ir.config_parameter'].sudo().get_param(self.GC_AV_ACTIVE_PARAM, 'not-set')
+        if gc_active == 'not-set':
+            gc_active = self.GC_AV_ACTIVE_DEFAULT
+            self.env['ir.config_parameter'].sudo().set_param(self.GC_AV_ACTIVE_PARAM, str(gc_active))
+        elif gc_active == 'True':
+            gc_active = True
+        elif gc_active == 'False':
+            gc_active = False
+        else:
+            gc_active = self.GC_AV_ACTIVE_DEFAULT
+            _logger.info('ATTACHMENTS GC - The System Parameter "%s" must be a string "True" or "False", case sensitive. Default value will be used (%s).' % (
+                self.GC_AV_ACTIVE_PARAM,
+                str(gc_active)
+            ))
+
+        # Get weekday limitation System Parameter
+        gc_weekday = self.env['ir.config_parameter'].sudo().get_param(self.GC_AV_WEEKDAY_PARAM, 'not-set')
+        if gc_weekday == 'not-set':
+            gc_weekday = self.GC_AV_WEEKDAY_DEFAULT
+            self.env['ir.config_parameter'].sudo().set_param(self.GC_AV_WEEKDAY_PARAM, str(gc_weekday))
+        elif gc_weekday.isdigit():
+            gc_weekday = int(gc_weekday)
+            if (gc_weekday < 0) or (gc_weekday > 6):
+                gc_weekday = self.GC_AV_WEEKDAY_DEFAULT
+                _logger.info('ATTACHMENTS GC - The System Parameter "%s" must be a "datetime.date.weekday()" number from "0" to "6" or "False", case sensitive. Default value will be used (%s).' % (
+                    self.GC_AV_WEEKDAY_PARAM,
+                    str(gc_weekday)
+                ))
+        elif gc_weekday == 'False':
+            gc_weekday = False
+        else:
+            gc_weekday = self.GC_AV_WEEKDAY_DEFAULT
+            _logger.info('ATTACHMENTS GC - The System Parameter "%s" must be a "datetime.date.weekday()" number from "0" to "6" or "False", case sensitive. Default value will be used (%s).' % (
+                self.GC_AV_WEEKDAY_PARAM,
+                str(gc_weekday)
+            ))
+
+        # Apply weekday limitation if necessary
+        if gc_weekday and gc_weekday != fields.Date.today().weekday():
+            gc_active = False
+            _logger.info('ATTACHMENTS GC - According to the System Parameter "%s" that is set to "%s", today this garbage collector will not be executed.' % (
+                self.GC_AV_WEEKDAY_PARAM,
+                str(gc_weekday)
+            ))
+
+        if gc_active:            
+            # Get cron unlink System Parameter
+            gc_do_unlink = self.env['ir.config_parameter'].sudo().get_param(self.GC_AV_UNLINK_PARAM, 'not-set')
+            if gc_do_unlink == 'not-set':
+                gc_do_unlink = self.GC_AV_UNLINK_DEFAULT
+                self.env['ir.config_parameter'].sudo().set_param(self.GC_AV_UNLINK_PARAM, str(gc_do_unlink))
+            elif gc_do_unlink == 'True':
+                gc_do_unlink = True
+            elif gc_do_unlink == 'False':
+                gc_do_unlink = False
+            else:
+                gc_do_unlink = self.GC_AV_UNLINK_DEFAULT
+                _logger.info('ATTACHMENTS GC - The System Parameter "%s" must be a string "True" or "False", case sensitive. Default value will be used (%s).' % (
+                    self.GC_AV_UNLINK_PARAM,
+                    str(gc_do_unlink)
+                ))
+
+            # Try to execute the garbage collector main method
+            try:
+                _logger.debug('Calling ir.attachment._garbage_collect_rel_orphan_attachments(do_unlink=%s)', str(gc_do_unlink))
+                self._garbage_collect_rel_orphan_attachments(do_unlink=gc_do_unlink)
+                self.env.cr.commit()
+            except Exception:
+                _logger.exception('Failed ir.attachemnt()._garbage_collect_rel_orphan_attachments()')
+                self.env.cr.rollback()
+                gc_do_unlink = False
+
+            if gc_do_unlink:
+                # Try to force execution of the filestore cleanup
+                try:
+                    _logger.debug('Calling ir.attachment()._gc_file_store()')
+                    self.sudo()._gc_file_store()
+                    self.env.cr.commit()
+                except Exception:
+                    _logger.exception('Failed ir.attachemnt()._gc_file_store()')
+                    self.env.cr.rollback()
+
+
+    # @todo: ma Email/messaggi eliminati non eliminavano anche gli attachement?
+    #        controlla che non sia asc_protect...!
+    # @todo: Problema durante caricamento files prima dii salvare -> fare in orario notturno
+    # @todo: ?? Su registro/log degli attachment cancellati ++ res_model ??
     # @todo: Implementare action multi "set as not orphan"
-    # @todo: ?? Aggiungere constraint che dà errore se si marcano record con "res_id" != False ??
+    # @todo: Aggiungere constraint che dà errore se si marcano record con "res_field" != False ??

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- add js to backend -->
+  <template id="assets_backend" name="Attachments GC Assets" inherit_id="web.assets_backend">
+    <xpath expr="." position="inside">
+      <!-- <link rel="stylesheet" type="text/css" href="/asc_base/static/src/css/backend-style.css"/> -->
+      <script type="text/javascript" src="/ir_attachment_orphan_gc/static/src/js/thread.js"/>
+      <script type="text/javascript" src="/ir_attachment_orphan_gc/static/src/js/chatter.js"/>
+    </xpath>
+  </template>
+
+</odoo>

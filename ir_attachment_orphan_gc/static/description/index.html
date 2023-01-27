@@ -12,34 +12,87 @@
     <p>A garbage collector for orphaned attachments from Many2many and Many2one fields.</p>
     <hr />
     <h2>PURPOSE OF USE</h2>
-    <p>This is a tool that allows you to mark and/or delete all orphaned attachments after all relationships (with any other model in the environment) have been broken due to records being deleted or fields pointing to the attachment being changed. This problem occurs particularly when using the <code>many2many_binary</code> widget.</p>
-    <p>When run as a cron, this garbage collector only marks and/or deletes attachments with the fields <code>res_id</code> empty and <code>res_model</code> pointing to a model whose <code>_attachment_garbage_collector</code> attribute is set to <code>True</code>.</p>
+    <p>This is a tool that allows you to mark and/or delete all orphaned attachments after all
+    relationships (with any other model in the environment) have been broken due to records
+    being deleted or fields pointing to the attachment being changed. This problem occurs
+    particularly when using the <code>many2many_binary</code> widget.</p>
+    <p>When run as a cron, this garbage collector only marks and/or deletes orphan attachments
+    with the fields <code>res_field</code> empty, <code>res_model</code> pointing to a model whose
+    <code>_attachment_garbage_collector</code> attribute is set to <code>True</code> and <code>create_date</code> and
+    <code>write_date</code> older than one day so as to exclude files uploaded via the Chatter,
+    via &quot;many2many_widget&quot; or reports created on-the-fly.</p>
     <h2>HOW TO USE IT</h2>
     <p>You can use this module in two ways:</p>
-    <p><strong>Manually</strong>, by opening the model records (<code>ir.model</code>) from &quot;Settings &gt;&gt; Technical &gt;&gt; Database Structure &gt;&gt; <strong>Models</strong>&quot; and executing the actions with the appropriate buttons in the &quot;<strong>Attachment GC</strong>&quot; tab. Further explanations on the manual mode are given above the action buttons, in the form view.</p>
-    <p><strong>Automatically</strong>, by changing the System Parameter <code>ir.autovacuum.attachment.orphan.active</code> from <code>False</code> to <code>True</code> (strings are case sensitive!). In this way, the method of this garbage collector will be executed just before the main cron &quot;Settings &gt;&gt; Technical &gt;&gt; Automation &gt;&gt; Scheduled Actions &gt;&gt; <strong>Base: Auto-vacuum internal data</strong>&quot;. By default, the automatic execution of this garbage collector is disabled. So when installing this module, no actions will be executed automatically.</p>
+    <p><strong>Manually</strong>, by opening the model records (<code>ir.model</code>) from
+    &quot;Settings &gt;&gt; Technical &gt;&gt; Database Structure &gt;&gt; <strong>Models</strong>&quot; and executing the actions with
+    the appropriate buttons in the &quot;<strong>Attachment GC</strong>&quot; tab. Further explanations on the manual
+    mode are given above the action buttons, in the form view.</p>
+    <p><strong>Automatically</strong>, by changing the System Parameter
+    <code>ir.autovacuum.attachment.orphan.active</code> from <code>False</code> to <code>True</code> (strings are case
+    sensitive!). In this way, the method of this garbage collector will be executed just before
+    the main cron &quot;Settings &gt;&gt; Technical &gt;&gt; Automation &gt;&gt; Scheduled Actions &gt;&gt; <strong>Base: Auto-vacuum internal data</strong>&quot;.
+    By default, the automatic execution of this garbage collector is disabled. So when
+    installing this module, no actions will be executed automatically.</p>
     <h2>CRON SETTINGS</h2>
-    <h3>Activation</h3>
-    <p>As mentioned above, to activate the cron you must change the System Parameter <code>ir.autovacuum.attachment.orphan.active</code> from <code>False</code> to <code>True</code>.</p>
-    <p>In the Python definition of the model you want to monitor, add the <code>_attachment_garbage_collector</code> attribute and set it to <code>True</code>.</p>
+    <h3>Activation of the automatic mode</h3>
+    <p>As mentioned above, to activate the cron you must change the System Parameter
+    <code>ir.autovacuum.attachment.orphan.active</code> from <code>False</code> to <code>True</code>.</p>
+    <p>In the Python definition of the model you want to monitor for orphans, add the
+    <code>_attachment_garbage_collector</code> attribute and set it to <code>True</code>.</p>
     <h3>Marking/deleting attachments</h3>
-    <p>By default, attachments are not deleted but only marked. Changing the System Parameter <code>ir.autovacuum.attachment.orphan.unlink</code> from <code>False</code> to <code>True</code> activates the &quot;<strong>delete mode</strong>&quot;. In &quot;delete mode&quot;, the first time it detects orphaned attachments it only marks them (field <code>maybe_orphan</code>). The second time this method is executed, if it finds that they are the same records, it deletes them (this is to reduce possible errors when the number of attachments is very large). Those previously marked and no longer orphaned are de-marked.</p>
+    <p>By default, attachments are not deleted but only marked. Changing the System Parameter
+    <code>ir.autovacuum.attachment.orphan.unlink</code> from <code>False</code> to <code>True</code> activates the
+    &quot;<strong>delete mode</strong>&quot;. In &quot;delete mode&quot;, the first time it detects orphaned attachments it
+    only marks them (field <code>maybe_orphan</code>). The second time this method is executed, if it
+    finds that they are the same records, it deletes them (this is to reduce possible errors
+    when the number of attachments is very large). Those previously marked and no longer
+    orphaned are de-marked.</p>
     <h3>Limitation on weekly day</h3>
-    <p>It is also possible to limit the execution of the method to a certain day of the week. By default this function is deactivated and therefore the method will be executed without day limitation. To indicate a specific day, it is possible to change the System parameter <code>ir.autovacuum.attachment.orphan.weekday</code> from <code>False</code> to a number between <code>0</code> and <code>6</code> according to the encoding of <code>datetime.date.weekday()</code>.</p>
+    <p>It is also possible to limit the execution of the method to a certain day of the week.
+    By default this function is deactivated and therefore the method will be triggered evry time
+    the main Cron <strong>Base: Auto-vacuum internal data</strong> is execuded, without any day limitation.
+    To indicate a specific day, it is possible to change the System parameter
+    <code>ir.autovacuum.attachment.orphan.weekday</code> from <code>False</code> to a number between <code>0</code> and
+    <code>6</code> according to the encoding of <code>datetime.date.weekday()</code>.</p>
     <h2>PRECAUTIONS FOR USE</h2>
-    <p>This tool only handles <strong>Many2any</strong> and <strong>Many2one</strong> fields pointing to records in <code>ir.attachment</code> and with domain <code>[('res_model', '=', _name)]</code> where <code>_name</code> is the internal name of one of the models you wish to keep &quot;clean&quot;. In other words, if you activate the function on a model and want ALL orphaned attachments to be detected, you should not point to attachments whose <code>res_model</code> is not also a module with <code>_attachment_garbage_collector</code> set to <code>True</code>.</p>
-    <p>For <strong>Many2many</strong> fields you are supposed to use the <code>many2many_binary</code> widget which takes care of correctly managing the domain of the displayed attachments and the default values of the created ones (especially <code>res_model</code>).</p>
-    <p>With the <strong>Many2one</strong> fields, it is possible to add the condition <code>[('res_id', '=', id)]</code> to the previous domain (which is essential); in this case, it is necessary to inherit the <code>mail.thread</code> mixin which will take care of the correct management/deletion of attachments with <code>[('res_id', '!=', 0)]</code>.</p>
-    <p>Some models have a non standard attachment handling and unexpected effects may occur if this garbage collector is activated on them. In this case, simply add the name of the models to be ignored to the <code>CG_MODEL_NAME_SAFELIST</code> dict to avoid erroneous activation on them. E.g. <code>self.env['ir.attachment'].CG_MODEL_NAME_SAFELIST.append('model.to.add')</code></p>
+    <p>This tool only handles <strong>Many2any</strong> and <strong>Many2one</strong> fields pointing to records in
+    <code>ir.attachment</code> and with domain <code>[('res_model', '=', _name)]</code> where <code>_name</code> is the
+    technincal name of one of the models you wish to keep &quot;clean&quot;. In other words, if you
+    activate the function on a model and want ALL orphaned attachments to be detected, <ins>you
+    should not point to attachments whose <code>res_model</code> is not also a module with
+    <code>_attachment_garbage_collector</code> set to <code>True</code></ins>.</p>
+    <p>For <strong>Many2many</strong> fields you are supposed to use the <code>many2many_binary</code> widget which
+    takes care of correctly managing the domain of the displayed attachments and the default
+    values of the created ones (especially <code>res_model</code>).</p>
+    <p>With the <strong>Many2one</strong> fields, it is possible to add (&amp;) the condition
+    <code>('res_id', '=', id)</code> to the previous domain (which is essential).</p>
+    <p>Some models have a non standard attachment handling and so, unexpected effects may occur if
+    this garbage collector is activated on them. In this case, simply add the name of the
+    models to be ignored to the <code>CG_MODEL_NAME_SAFELIST</code> dict to avoid erroneous activation
+    on them. E.g. <code>self.env['ir.attachment'].CG_MODEL_NAME_SAFELIST.append('model.to.add')</code></p>
+    <h2>NOTE WELL</h2>
+    <p>All models starting with 'ir.' are already in the CG_MODEL_NAME_SAFELIST, as their
+    attachments are system ones and are handled automatically by Odoo (at least I hope so).</p>
+    <p>When an image is deleted, you can see in the log that two records are deleted instead of
+    one. The other record is the thumbnail, which is handled automatically and hidden by
+    default in the Attachments tree view.</p>
+    <p>If you are not in Superuser Mode, you cannot display all the attachments in &quot;ir.attachment&quot;.
+    For this reason, if you need to debug, I suggest to login as Superuser (from the Debug menu
+    in the systray when you are in Developer Mode).</p>
+    <p>By default, Attachments with <code>res_field</code> set to value are not displayed and are not managed
+    by this garbage collector. So see all all the Attachments in tree view, you can use the preset
+    filter &quot;SHOW ALL&quot;.</p>
     <hr />
     <h2>Examples</h2>
     <p>System Parameters (ir.config_parameter)</p>
     <pre><code>ir.autovacuum.attachment.orphan.active  :  &quot;True&quot;
-ir.autovacuum.attachment.orphan.unlink  :  &quot;True&quot;
-ir.autovacuum.attachment.orphan.weekday :  &quot;6&quot;
-</code></pre>
+    ir.autovacuum.attachment.orphan.unlink  :  &quot;True&quot;
+    ir.autovacuum.attachment.orphan.weekday :  &quot;6&quot;
+    </code></pre>
+    <p>In order to be correctly managed by this garbage collector, the fields that are using
+    Attachments should be implemented in the following way:</p>
     <p>Model (Python file)</p>
-    <pre><code>class ExampleModel(models.Model):
+<pre><code>class ExampleModel(models.Model):
     _name = 'example.model'
     _inherit = ['mail.thread']
 
@@ -61,8 +114,9 @@ ir.autovacuum.attachment.orphan.weekday :  &quot;6&quot;
         comodel_name = 'ir.attachment',
         string= 'Many2one attachment 1'
     )
+    
     # MANY2ONE mode 2
-    m2o_attachment_1_id = fields.Many2one(
+    m2o_attachment_2_id = fields.Many2one(
         comodel_name = 'ir.attachment',
         domain = [('res_model', '=', _name)],
         context = {'default_res_model': _name},
@@ -83,7 +137,7 @@ ir.autovacuum.attachment.orphan.weekday :  &quot;6&quot;
     )
 </code></pre>
     <p>View (XML file)</p>
-    <pre><code>&lt;record id=&quot;example_model_view_form&quot; model=&quot;ir.ui.view&quot;&gt;
+<pre><code>&lt;record id=&quot;example_model_view_form&quot; model=&quot;ir.ui.view&quot;&gt;
     &lt;field name=&quot;name&quot;&gt;example.model.view.form&lt;/field&gt;
     &lt;field name=&quot;model&quot;&gt;example.model&lt;/field&gt;
     &lt;field name=&quot;arch&quot; type=&quot;xml&quot;&gt;
@@ -121,6 +175,94 @@ ir.autovacuum.attachment.orphan.weekday :  &quot;6&quot;
     &lt;/field&gt;
 &lt;/record&gt;
 </code></pre>
+    <hr />
+    <blockquote>
+    <p>NOTE: The following section is intended as literature on the topic of attachment.</p>
+    </blockquote>
+    <h2>ATTACHMENTS ON CHATTER TOPBAR</h2>
+    <p>On Odoo 14.0 (maybe from 13), the <code>many2many_binary</code> and the chatter have a new way of handling
+    attachments. For this reason, the Attachment button and counter are disabled on the Chatter's
+    topbar for all the Models whose <code>_attachment_garbage_collector</code> attribute is set to <code>True</code>.
+    Users cannot upload Attachments directly via Chatter because in this way they seem to be orphan
+    because no real field is pointing to them (except for <code>message_main_attachment_id</code>, read more below).</p>
+    <h3>SE IL MODELLO IMPLEMENTA IL MIXIN <code>MAIL.THREAD</code>.</h3>
+    <p>Viene aggiunto al modello il campo <code>message_main_attachment_id</code> con la funzione di mostrare
+    l'attachment più &quot;rilevante&quot;. Se solo un attachment punta al nostro record, allora sarà quello.
+    Altrimenti la priorità viene stabilita tramite il <code>mimetype</code> del file col seguente ordine:
+    per mimetype: <code>pdf</code> --&gt; <code>image</code> --&gt; other mimetypes.
+    Se ci sono più file del medesimo mimetype (es. pdf), allora prende automaticamente il primo.
+    Dato che il modello <code>ir.attachment</code> è ordinato per <code>'id desc'</code>, allora presimo prenderà
+    l'ultimo file caricato (almeno... non mi sembra che vengano riordinati in altro modo).
+    Per modificare il criterio di selezione del campo, è possibile fare l'override del metodo
+    <code>_message_set_main_attachment_id()</code>.
+    Per impostare invece il campo <code>my_attachment_field_ids</code> del nostro record è possibile eseguire
+    la suddetta funzione passando gli <code>id</code> in formato <code>command 4</code> (link).</p>
+    <pre><code>    # Un singolo attachment
+        record._message_set_main_attachment_id([(4, my_attachment.id)])
+        
+        # Oppure una serie di attachment
+        record._message_set_main_attachment_id([(4, id) for id in record.my_attachment_field_ids.ids])
+    </code></pre>
+    <p>Nel chatter vengono automaticamente computati dal client javascript tutti gli attachment che
+    puntano al record corrente tramite la combinazione di <code>res_model</code> e <code>res_id</code>.</p>
+    <p>Il campo <code>message_main_attachment_id</code> è di default escluso dalle relazioni rilevanti;
+    quindi se l'unica relazione di un Attachment è tramite questo campo, l'Attachment verrà comunque
+    considerato orfano e di conseguenza eliminabile.</p>
+    <p>### POSSIBILI MODI DI CREAZIONE (UPLOAD) DEGLI ATTACHMENT IN <code>ir.attachment</code></p>
+    <ol>
+    <li>
+    <p>In un campo HTML, tramite l'apposita funzione del &quot;web_editor&quot;.
+    Crea un attachment con <code>res_model</code> e <code>res_id</code> che puntano al nostro record.</p>
+    </li>
+    <li>
+    <p>Caricando un file in un campo di tipo <code>Binary</code> definito con l'argomento <code>attachment=True</code>
+    Crea un attachment con <code>res_model</code>, <code>res_id</code> e <code>res_field</code> che puntano al nostro record
+    e in particolare al campo con cui abbiamo caricato il file.</p>
+    </li>
+    <li>
+    <p>Caricando un file in un campo di tipo Many2one o, più frequentemente, Many2many tramite il
+    widget <code>many2many_binary</code>.
+    Crea un attachment con <code>res_model</code> e <code>res_id</code> che puntano al nostro record.
+    In caso di campo Many2many viene anche creato un record nella tabella di relazione che collega
+    il nostro campo con <code>ir.attachment</code>.</p>
+    </li>
+    </ol>
+    <p>Se abbiamo installato il modulo <code>mail</code>:</p>
+    <ol start="4">
+    <li>Creando un nuovo messaggio tramite l'IM box o in un &quot;Mail channel&quot; (Discuss) e allegando un
+    file.
+    La modalità è la stessa del punto 3.
+    Crea un attachment con <code>res_model=='mail.channel'</code> e <code>res_id</code> che punta al canale.
+    Inviare messaggi in un Channel <code>mail.channel</code> è esattamente come inviare messaggi nel chatter
+    di un qualunque record di un modello che eredita il mixin <code>mail.thread</code>.
+    In altre parole, ciascun canale è un record di <code>mail.channel</code> e ciascun messaggio è come
+    un messaggio nel suo chatter.
+    Dato che gli attachment di ciascun messaggio vengono caricati nel campo Many2many
+    <code>attachment_ids</code>, come nel punto 3 viene creato anche un nuovo record nella tabella di
+    relazione, che in questo caso è <code>message_attachment_rel</code>.
+    NB: in questo caso, se è il primo messaggio del canale, viene anche creato l'attachment
+    <code>image_128</code> automaticamente con <code>res_model=='mail.channel'</code>, <code>res_id</code> che punta al nostro
+    messaggio e <code>res_field</code> che punta al campo <code>image_128</code>.</li>
+    </ol>
+    <p>Se il modello implementa il mixin &quot;mail.thread&quot;:</p>
+    <ol start="5">
+    <li>
+    <p>Caricando un file tramite l'apposita funzione nel chatter (icona allegato).
+    Crea un attachment con <code>res_model</code> e <code>res_id</code> che puntano al nostro record.</p>
+    </li>
+    <li>
+    <p>Creando un nuovo messaggio nel chatter di un modello e allegando un file.
+    Crea un attachment con <code>res_model</code> e <code>res_id</code> che puntano al nostro record.
+    Nel messaggio invece, come al punto 4, ci sarà il campo <code>attachment_ids</code> che punterà al
+    nostro attachment questo vuol dire che è stato creato anche un nuovo record nella tabella di
+    relazione che, anche in questo caso, in questo caso è <code>message_attachment_rel</code>.</p>
+    </li>
+    </ol>
+    <h3>COME ODOO TIENE PULITO IL FILESTORE</h3>
+    <p>Per ciascun file del filestore, controlla se esiste un record in <code>ir.attachment</code> che ha
+    l'hash SHA1 corrispondente al proprio. Se non ne viene trovato nessuno, vuol dire che
+    il file non è più utilizzato da nessun attachment e quindi viene eliminato.
+    Questa operazione viene eseguita dal cron &quot;Base: pulizia automatica dati interni&quot;.</p>
 </body>
 
 </html>

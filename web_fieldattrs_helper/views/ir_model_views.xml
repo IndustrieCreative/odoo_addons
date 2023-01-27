@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <odoo> 
 
+  <record id="view_model_search_inherit_web_fieldattrs_helper" model="ir.ui.view">
+    <field name="name">ir.model.search.inherit.web.fieldattrs.helper</field>
+    <field name="model">ir.model</field>
+    <field name="inherit_id" ref="base.view_model_search" />
+    <field name="arch" type="xml">
+
+      <filter name="base" position="after">
+        <separator/>
+          <filter name="is_fah_implemented" string="FAH active" domain="[('fah_implemented', '=', True)]"/>
+        <separator/>
+      </filter>
+
+    </field>
+  </record>
+
   <record id="view_model_tree_inherit_web_fieldattrs_helper" model="ir.ui.view">
     <field name="name">ir.model.tree.inherit.web.fieldattrs.helper</field>
     <field name="model">ir.model</field>

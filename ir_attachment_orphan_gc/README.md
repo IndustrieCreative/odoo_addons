@@ -11,9 +11,11 @@ relationships (with any other model in the environment) have been broken due to 
 being deleted or fields pointing to the attachment being changed. This problem occurs
 particularly when using the ``many2many_binary`` widget.
 
-When run as a cron, this garbage collector only marks and/or deletes attachments with the
-fields ``res_id`` empty and ``res_model`` pointing to a model whose
-``_attachment_garbage_collector`` attribute is set to ``True``.
+When run as a cron, this garbage collector only marks and/or deletes orphan attachments
+with the fields ``res_field`` empty, ``res_model`` pointing to a model whose
+``_attachment_garbage_collector`` attribute is set to ``True`` and ``create_date`` and
+``write_date`` older than one day so as to exclude files uploaded via the Chatter,
+via "many2many_widget" or reports created on-the-fly.
 
 
 ## HOW TO USE IT
@@ -39,7 +41,7 @@ installing this module, no actions will be executed automatically.
 As mentioned above, to activate the cron you must change the System Parameter
 ``ir.autovacuum.attachment.orphan.active`` from ``False`` to ``True``.
 
-In the Python definition of the model you want to monitor, add the
+In the Python definition of the model you want to monitor for orphans, add the
 ``_attachment_garbage_collector`` attribute and set it to ``True``.
 
 ### Marking/deleting attachments
@@ -53,8 +55,9 @@ orphaned are de-marked.
 
 ### Limitation on weekly day
 It is also possible to limit the execution of the method to a certain day of the week.
-By default this function is deactivated and therefore the method will be executed without
-day limitation. To indicate a specific day, it is possible to change the System parameter
+By default this function is deactivated and therefore the method will be triggered evry time
+the main Cron **Base: Auto-vacuum internal data** is execuded, without any day limitation.
+To indicate a specific day, it is possible to change the System parameter
 ``ir.autovacuum.attachment.orphan.weekday`` from ``False`` to a number between ``0`` and
 ``6`` according to the encoding of ``datetime.date.weekday()``.
 
@@ -64,18 +67,16 @@ day limitation. To indicate a specific day, it is possible to change the System 
 This tool only handles **Many2any** and **Many2one** fields pointing to records in
 ``ir.attachment`` and with domain ``[('res_model', '=', _name)]`` where ``_name`` is the
 technincal name of one of the models you wish to keep "clean". In other words, if you
-activate the function on a model and want ALL orphaned attachments to be detected, you
+activate the function on a model and want ALL orphaned attachments to be detected, <ins>you
 should not point to attachments whose ``res_model`` is not also a module with
-``_attachment_garbage_collector`` set to ``True``.
+``_attachment_garbage_collector`` set to ``True``</ins>.
 
 For **Many2many** fields you are supposed to use the ``many2many_binary`` widget which
 takes care of correctly managing the domain of the displayed attachments and the default
 values of the created ones (especially ``res_model``).
 
 With the **Many2one** fields, it is possible to add (&amp;) the condition
-``('res_id', '=', id)`` to the previous domain (which is essential); in this case,
-it is necessary to inherit the ``mail.thread`` mixin which will take care of the correct
-management/deletion of attachments with ``[('res_id', '!=', 0)]``.
+``('res_id', '=', id)`` to the previous domain (which is essential).
 
 Some models have a non standard attachment handling and so, unexpected effects may occur if
 this garbage collector is activated on them. In this case, simply add the name of the
@@ -92,6 +93,14 @@ When an image is deleted, you can see in the log that two records are deleted in
 one. The other record is the thumbnail, which is handled automatically and hidden by
 default in the Attachments tree view.
 
+If you are not in Superuser Mode, you cannot display all the attachments in "ir.attachment".
+For this reason, if you need to debug, I suggest to login as Superuser (from the Debug menu
+in the systray when you are in Developer Mode).
+
+By default, Attachments with ``res_field`` set to value are not displayed and are not managed
+by this garbage collector. So see all all the Attachments in tree view, you can use the preset
+filter "SHOW ALL".
+
 ---
 
 ## Examples
@@ -102,6 +111,8 @@ System Parameters (ir.config_parameter)
     ir.autovacuum.attachment.orphan.unlink  :  "True"
     ir.autovacuum.attachment.orphan.weekday :  "6"
 
+In order to be correctly managed by this garbage collector, the fields that are using
+Attachments should be implemented in the following way:
 
 Model (Python file)
 
@@ -127,8 +138,9 @@ Model (Python file)
             comodel_name = 'ir.attachment',
             string= 'Many2one attachment 1'
         )
+        
         # MANY2ONE mode 2
-        m2o_attachment_1_id = fields.Many2one(
+        m2o_attachment_2_id = fields.Many2one(
             comodel_name = 'ir.attachment',
             domain = [('res_model', '=', _name)],
             context = {'default_res_model': _name},
@@ -193,12 +205,13 @@ View (XML file)
 
 > NOTE: The following section is intended as literature on the topic of attachment.
 
-## STUDY ON METHODS FOR IMPLEMENTING ``ir.attachment`` (on Odoo 14.0)
+## ATTACHMENTS ON CHATTER TOPBAR
 
-On Odoo 14.0 (maybe from 13), the chatter has a new way of handling attachments...
-I'm looking into it, but there is no risk of deleting attachments that are still
-referenced. On the contrary, there is a risk that in some cases this GC will not detect
-the "orphanage" of an attachment.
+On Odoo 14.0 (maybe from 13), the ``many2many_binary`` and the chatter have a new way of handling
+attachments. For this reason, the Attachment button and counter are disabled on the Chatter's
+topbar for all the Models whose ``_attachment_garbage_collector`` attribute is set to ``True``.
+Users cannot upload Attachments directly via Chatter because in this way they seem to be orphan
+because no real field is pointing to them (except for ``message_main_attachment_id``, read more below).
 
 
 ### SE IL MODELLO IMPLEMENTA IL MIXIN ``MAIL.THREAD``.
@@ -225,6 +238,9 @@ la suddetta funzione passando gli ``id`` in formato ``command 4`` (link).
 Nel chatter vengono automaticamente computati dal client javascript tutti gli attachment che
 puntano al record corrente tramite la combinazione di ``res_model`` e ``res_id``.
 
+Il campo ``message_main_attachment_id`` è di default escluso dalle relazioni rilevanti;
+quindi se l'unica relazione di un Attachment è tramite questo campo, l'Attachment verrà comunque
+considerato orfano e di conseguenza eliminabile.
 
 ### POSSIBILI MODI DI CREAZIONE (UPLOAD) DEGLI ATTACHMENT IN ``ir.attachment``
 
@@ -276,4 +292,3 @@ Per ciascun file del filestore, controlla se esiste un record in ``ir.attachment
 l'hash SHA1 corrispondente al proprio. Se non ne viene trovato nessuno, vuol dire che
 il file non è più utilizzato da nessun attachment e quindi viene eliminato.
 Questa operazione viene eseguita dal cron "Base: pulizia automatica dati interni".
-

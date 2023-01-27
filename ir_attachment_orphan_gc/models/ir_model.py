@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models
+# import time
+from odoo import fields, models, api
 
 class IrModel(models.Model):
     _inherit = 'ir.model'
@@ -10,7 +11,11 @@ class IrModel(models.Model):
         search = '_search_attachment_gc_active',
         string = 'GC active?',
         store = False,
-        help = '''"True" if this model has the "_attachment_garbage_collector" attribute set to "True" in its Python class definition.'''
+        help = '"True" if this model has the "_attachment_garbage_collector" '
+            'attribute set to "True" in its Python class definition.\n'
+            'If this is active and the System patameter "ir.autovacuum.attachment.orphan.active" '
+            'is set to "True", the attachments of this Model will be processed '
+            'during the Cron "Base: Auto-vacuum internal data".'
     )
 
     def _compute_attachment_gc_active(self):
@@ -45,15 +50,10 @@ class IrModel(models.Model):
 
     def action_open_attachments(self):
         self.ensure_one()
-        # view_tree_id = self.env.ref('asc_monitoraggio.asc_monitoraggio_iscrizione_presenza_view_tree').id
-        # view_form_id = self.env.ref('asc_monitoraggio.asc_monitoraggio_iscrizione_presenza_view_form').id
-
         return {
             'name': 'Attachments',
             'type': 'ir.actions.act_window',
             'res_model': 'ir.attachment',
-            # 'view_id': view_tree_id,
-            # 'views': [(view_tree_id, 'tree'), (view_form_id, 'form')],
             'view_mode': 'tree,form',
             'target': 'current',
             'domain': [('res_model', '=', self.model)],
@@ -61,3 +61,13 @@ class IrModel(models.Model):
                 'default_res_model': self.model,
             } 
         }
+
+    # RPC API FOR CHATTER
+    @api.model
+    def get_attachment_gc_active(self, model_name):
+        # @test: Delay response for some seconds;
+        #        to check if the Chatter is re-rendering after
+        #        the form is loaded.
+        # time.sleep(5)
+        model = self.search([("model", "=", model_name)])
+        return model.attachment_gc_active

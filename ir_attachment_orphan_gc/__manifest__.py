@@ -7,13 +7,17 @@
     'author': 'Walter Mantovani',
     'website': 'https://github.com/IndustrieCreative/odoo_addons',
     'category': 'Technical Settings', # https://github.com/odoo/odoo/blob/12.0/odoo/addons/base/data/ir_module_category_data.xml
-    'version': '14.0.1.0.1',
-    'depends': ['base'],
+    'version': '14.0.1.0.2',
+    'depends': ['base', 'mail'],
     'application': False,
     'data': [
         'security/ir.model.access.csv',
+        'views/assets.xml',
         'views/ir_attachment.xml',
         'views/ir_model.xml',
         'wizard/base_attachment_resfinder_views.xml',
+    ],
+    'qweb': [
+        'static/src/xml/chatter_topbar.xml',
     ],
 }

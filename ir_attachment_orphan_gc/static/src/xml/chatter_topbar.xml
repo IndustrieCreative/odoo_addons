@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<template>
+
+<!-- Hides the Attachment button and counter in the Chatter Topbar -->
+<t t-name="ChatterTopbar" t-inherit="mail.ChatterTopbar" t-inherit-mode="extension" owl="1">
+    <xpath expr="//button[hasclass('o_ChatterTopbar_buttonAttachments')]" position="attributes">
+
+    <attribute name="t-if">chatter.thread.attachmentGCActive == false</attribute>
+    <!-- <attribute name="t-if">chatter.threadModelAttachmentGCActive == false</attribute> -->
+
+    </xpath>
+</t>
+</template>
