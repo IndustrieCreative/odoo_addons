@@ -15,7 +15,7 @@ When run as a cron, this garbage collector only marks and/or deletes orphan atta
 with the fields ``res_field`` empty, ``res_model`` pointing to a model whose
 ``_attachment_garbage_collector`` attribute is set to ``True`` and ``create_date`` and
 ``write_date`` older than one day so as to exclude files uploaded via the Chatter,
-via "many2many_widget" or reports created on-the-fly.
+via "many2many_binary" or reports created on-the-fly.
 
 
 ## HOW TO USE IT

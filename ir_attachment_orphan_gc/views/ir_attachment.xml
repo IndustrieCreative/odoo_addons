@@ -90,4 +90,16 @@
     </field>
   </record>
 
+  <record model="ir.actions.server" id="ir_attachment_action_server_orphan_gc">
+    <field name="name">Uncheck "Maybe orphan?"</field>
+    <field name="model_id" ref="base.model_ir_attachment"/>
+    <field name="binding_model_id" ref="base.model_ir_attachment" />
+    <field name="state">code</field>
+    <field name="groups_id" eval="[(4,ref('base.group_system'))]"/>
+    <field name="code">
+      if records:
+          action = records.action_uncheck_maybe_orphan()
+    </field>
+  </record>
+
 </odoo>

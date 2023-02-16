@@ -11,16 +11,16 @@ odoo.define("ir_attachment_orphan_gc/static/src/js/thread.js", function (require
         "mail.thread",
         "ir_attachment_orphan_gc/static/src/js/thread.js",
         {
-            // Method to update the field "attachmentGCActive" of the Thread,
+            // Method to update the field "attachmentGCMode" of the Thread,
             // used to show or hide the Attachments button and counter
             // on the Chatter Topbar
-            async getAttachmentGCActive() {
+            async getAttachmentGCMode() {
                 var model = this.__values.model;
-                const attachmentGCActive = await this.async(() =>
+                const resAttachmentGCMode = await this.async(() =>
                     this.env.services.rpc(
                         {
                             model: "ir.model",
-                            method: "get_attachment_gc_active",
+                            method: "get_attachment_gc_mode",
                             args: [model],
                         },
                         {
@@ -28,10 +28,9 @@ odoo.define("ir_attachment_orphan_gc/static/src/js/thread.js", function (require
                         }
                     )
                 );
-                console.log(attachmentGCActive);
-                let attachmentGCActiveRes = attachmentGCActive;
+                console.log(resAttachmentGCMode);
                 this.update({
-                    attachmentGCActive: attachmentGCActiveRes,
+                    attachmentGCMode: resAttachmentGCMode,
                 });
             },
         }
@@ -44,7 +43,7 @@ odoo.define("ir_attachment_orphan_gc/static/src/js/thread.js", function (require
             // Field to know if the Thread's Model has
             // the field "attachment_gc_active" set to True or False
             // on its "ir.model" record
-            attachmentGCActive: attr(),
+            attachmentGCMode: attr(),
         }
     );
 });

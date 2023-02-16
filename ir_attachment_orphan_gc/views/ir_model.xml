@@ -11,6 +11,8 @@
         <separator/>
           <filter name="is_attachment_gc_active" string="Attachment GC active" domain="[('attachment_gc_active', '=', True)]"/>
         <separator/>
+          <filter name="is_attachment_gc_active_not_o2m" string="Attachment GC Not O2m" domain="[('attachment_gc_active_not_o2m', '=', True)]"/>
+        <separator/>
       </filter>
 
     </field>
@@ -25,6 +27,7 @@
 
       <xpath expr="//tree[1]" position="inside">
         <field name="attachment_gc_active"/>
+        <field name="attachment_gc_active_not_o2m"/>
       </xpath>
 
     </field>
@@ -40,6 +43,7 @@
         <page string="Attachments GC" groups="base.group_no_one">
           <group>
             <field name="attachment_gc_active"/>
+            <field name="attachment_gc_active_not_o2m"/>
           </group>
           <group>
             <div class="text-center">

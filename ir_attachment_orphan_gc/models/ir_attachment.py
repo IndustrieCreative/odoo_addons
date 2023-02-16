@@ -12,9 +12,10 @@ _logger = logging.getLogger(__name__)
 class IrAttachment(models.Model):
     _inherit = 'ir.attachment'
 
-    CG_MODEL_NAME_SAFELIST = []
+    CG_MODEL_NAME_SAFELIST = ['mail.channel', 'website', 'calendar.event']
     CG_MODEL_PREFIX_SAFELIST = ['ir.']
     CG_MODEL_FIELD_IGNORELIST = ['message_main_attachment_id']
+    CG_IGNORE_LAST_EDIT_DAYS = 2
 
     GC_AV_ACTIVE_PARAM = 'ir.autovacuum.attachment.orphan.active'
     GC_AV_ACTIVE_DEFAULT = False # boolean
@@ -33,6 +34,9 @@ class IrAttachment(models.Model):
             orphaned during the next check as well, it will be deleted. Otherwise this flag
             will be removed.'''
     )
+
+    def action_uncheck_maybe_orphan(self):
+        self.write({'maybe_orphan': False})
 
     def action_find_resource(self):
         self.ensure_one()
@@ -128,9 +132,11 @@ class IrAttachment(models.Model):
         logger.info('ATTACHMENTS GC - The model safelist is: %s' % ', '.join(cg_name_safelist))
 
         # Tutti i modelli che hanno campi Many2many o Many2one che puntano a "ir.attachemnt"
-        rel_models = []
+        rel_models = [] # list(dict)
+        # Tutti i modelli attivi che hanno _attachment_garbage_collector_o2m == True
+        o2m_models = [] # list(Model)
         # Tutti i modellli attivi
-        act_models = []
+        act_models = [] # list(str)
         for model_name in self.env:
             
             rel_fields = self._get_model_attachment_relations(model_name)
@@ -154,7 +160,7 @@ class IrAttachment(models.Model):
                 is_active_model = False
                 logger.warning('ATTACHMENTS GC - According to the safelist, the model "%s" cannot be active. The attachments of this model have been ignored.' % model_name)
 
-            # Se punta a "ir.attachment" o è un modello attivo
+            # Se punta a "ir.attachment"
             if m2m_attachment_fields or m2o_attachment_fields:
                 rel_models.append({
                     'model_name': model_name,
@@ -168,8 +174,18 @@ class IrAttachment(models.Model):
             if is_active_model:
                 act_models.append(model_name)
 
-            if is_active_model and not (m2m_attachment_fields or m2o_attachment_fields):
-                logger.warning('ATTACHMENTS GC - The active model "%s" does not appear to have any relational fields (m2m or m2o) pointing to "ir.attachment".' % model_name)
+                # Legge l'attributo che disattiva l'opzione o2m gc sul modello
+                is_not_o2m_model = getattr(self.env[model_name], '_attachment_garbage_collector_not_o2m', False)
+                # Valida il tipo dell'attributo
+                if type(is_not_o2m_model) is not bool:
+                    is_not_o2m_model = False
+                    logger.warning('ATTACHMENTS GC - The "_attachment_garbage_collector_not_o2m" attribute of the model "%s" is not boolean. The attriburte has been ignored.' % model_name)
+                if not is_not_o2m_model:
+                    # Popola la lista dei modelli con l'opzione "o2m" attiva
+                    o2m_models.append(self.env[model_name])
+
+                if is_not_o2m_model and not m2m_attachment_fields and not m2o_attachment_fields:
+                    logger.warning('ATTACHMENTS GC - The active model "%s" does not appear to have any relational fields (m2m or m2o) pointing to "ir.attachment" and the O2M mode is disabled.' % model_name)
 
         logger.info('ATTACHMENTS GC - %d  Many2many and  %d  Many2one fields related to "ir.attachment" were found on  %d  different models.' % (count['m2m'], count['m2o'], count['model']))
         logger.info('ATTACHMENTS GC - The service %s on  %d  models: %s' % (
@@ -177,61 +193,91 @@ class IrAttachment(models.Model):
             len(act_models),
             ', '.join(act_models))
         )
+        logger.info('ATTACHMENTS GC - The O2M mode is enabled on  %d  active models: %s' % (
+            len(o2m_models),
+            ', '.join([model._name for model in o2m_models]))
+        )
 
         # Check if all Attachments that meet the following conditions are orphaned:
         # - linked to any res_model in "act_models" list
         # - unused since at least one day (create_date and write_date) so as to
-        #   exclude files uploaded via the Chatter, via "many2many_widget" or
+        #   exclude files uploaded via the Chatter, via "many2many_binary" or
         #   reports created on-the-fly.
         # NOTE: Binary fields are auto excluded by _search() override on ir.attachment
         #       if "id" or "res_field" aren't in the search domain.
-        limit_date = fields.Datetime.subtract(fields.Datetime.now(), days=1)
+        limit_date = fields.Datetime.subtract(fields.Datetime.now(), days=self.CG_IGNORE_LAST_EDIT_DAYS)
         all_active_models_attachments = self.sudo().with_context(active_test=False).search([
             ('res_model', 'in', act_models),
-            ('create_date', '<', limit_date),
-            ('write_date', '<', limit_date)
+            # ('create_date', '<', limit_date),
+            # ('write_date', '<', limit_date)
         ])
         
         logger.info('ATTACHMENTS GC - In the active models,  %d  attachments were found which need to be checked.' % len(all_active_models_attachments))
 
-        # Tutti gli attachment dei modelli "attivi" usati da record di qualunque altro modello
-        used_attachments = self.env['ir.attachment'] # empty recordset
-        for model in rel_models:
-            Model = self.env[model['model_name']]
-
-            for res_m2m_field in model['m2m_attachment_fields']:
+        # Tutti gli attachment dei modelli "attivi" usati da record di qualunque
+        # altro modello tramite campi m2m o m2o
+        rel_used_attachments = self.env['ir.attachment'] # empty recordset
+        
+        # Tutti gli attachment dei modelli "attivi" che puntano a record
+        # ancora esistenti
+        o2m_used_attachments = self.env['ir.attachment'] # empty recordset
+        
+        for rel_model in rel_models:
+            Model = self.env[rel_model['model_name']]
+            
+            # Campi M2M
+            for res_m2m_field in rel_model['m2m_attachment_fields']:
                 self.env.cr.execute('SELECT %s FROM %s' % (res_m2m_field['column2'], res_m2m_field['relation']))
                 m2m_field_used_attachments_ids = [id[0] for id in self.env.cr.fetchall()]
                 m2m_field_used_attachments = self.sudo().browse(m2m_field_used_attachments_ids)
 
-                used_attachments |= m2m_field_used_attachments
+                rel_used_attachments |= m2m_field_used_attachments
 
-            for res_m2o_field in model['m2o_attachment_fields']:
+            # Campi M2O
+            for res_m2o_field in rel_model['m2o_attachment_fields']:
                 if res_m2o_field['name'] not in self.CG_MODEL_FIELD_IGNORELIST:
                     m2o_field_used_attachments = Model.sudo().with_context(active_test=False).search([
                         (res_m2o_field['name'], '!=', False)
                     ]).mapped(res_m2o_field['name'])
                 
-                    used_attachments |= m2o_field_used_attachments
+                    rel_used_attachments |= m2o_field_used_attachments
 
+        # Ottiene gli attachment orfani da relazioni
+        rel_orphan_attachments = all_active_models_attachments - rel_used_attachments
 
-        # Individua gli attachment orfani
-        orphan_attachments = all_active_models_attachments - used_attachments
+        # Individua gli attachment che puntano a record ancora esistenti
+        # tra quelli orfani da relazioni
+        for o2m_model in o2m_models:
+            self.env.cr.execute('SELECT id FROM %s' % o2m_model._table)
+            o2m_model_record_ids = [id[0] for id in self.env.cr.fetchall()]
+            o2m_used_attachments |= rel_orphan_attachments.filtered(lambda a:
+                a.res_model == o2m_model._name and \
+                a.res_id in o2m_model_record_ids
+            )
+
+        # Aggiunge gli attachment che puntano a record ancora esistenti
+        # agli attachment usati da relazioni
+        used_attachments = rel_used_attachments | o2m_used_attachments
+
+        # Sottrae gli attachment che puntano a record ancora esistenti
+        # agli attachment orfani da relazioni
+        all_orphan_attachments = rel_orphan_attachments - o2m_used_attachments
+
         # Gli attachment che sono stati marcati precedentemente, ma ora non risultano più orfani
         not_orphan_attachments = used_attachments.filtered('maybe_orphan')
         # Gli attachment che erano già marcati
-        confirmed_orphan_attachments = orphan_attachments.filtered('maybe_orphan')
+        confirmed_orphan_attachments = all_orphan_attachments.filtered('maybe_orphan')
         # Gli attachment non ancora marcati, e da marcare
-        maybe_orphan_attachments = orphan_attachments - confirmed_orphan_attachments
+        maybe_orphan_attachments = all_orphan_attachments - confirmed_orphan_attachments
 
         count.update({
-            'oa': len(orphan_attachments),
+            'oa': len(all_orphan_attachments),
             'coa': len(confirmed_orphan_attachments),
             'poa': len(maybe_orphan_attachments)
         })
 
         count.update({
-            'oa_mb': '{0:.2f} MiB'.format(sum(orphan_attachments.mapped('file_size'))/1048576),
+            'oa_mb': '{0:.2f} MiB'.format(sum(all_orphan_attachments.mapped('file_size'))/1048576),
             'coa_mb': '{0:.2f} MiB'.format(sum(confirmed_orphan_attachments.mapped('file_size'))/1048576),
             'poa_mb': '{0:.2f} MiB'.format(sum(maybe_orphan_attachments.mapped('file_size'))/1048576)
         })
@@ -352,10 +398,14 @@ class IrAttachment(models.Model):
                     _logger.exception('Failed ir.attachemnt()._gc_file_store()')
                     self.env.cr.rollback()
 
-
-    # @todo: ma Email/messaggi eliminati non eliminavano anche gli attachement?
-    #        controlla che non sia asc_protect...!
-    # @todo: Problema durante caricamento files prima dii salvare -> fare in orario notturno
-    # @todo: ?? Su registro/log degli attachment cancellati ++ res_model ??
-    # @todo: Implementare action multi "set as not orphan"
-    # @todo: Aggiungere constraint che dà errore se si marcano record con "res_field" != False ??
+    # PROBLEMA IMPORTANTE DA DECIDERE COME GESTIRE:
+    # @todo: Gestione file caricati in campi HTML... rischiano di essere eliminati.
+    #   --> opzione in definizione modello:
+    #       "elimina solo se il record collegato non esiste più"
+    #       in caso di campi Html o di intenzione di usare il caricamento
+    #       allegati dal chatter (quindi non deve essere nascosto).
+    
+    # VARIE ED EVENTUALI:
+    # @todo: ?? Su registro/log degli attachment cancellati indicare anche "res_model" ??
+    # @todo: ?? Implementare action multi "set as not orphan" ??
+    # @todo: ?? Aggiungere constraint che dà errore se si marcano record con "res_field" != False ??

@@ -11,15 +11,15 @@ odoo.define("ir_attachment_orphan_gc/static/src/js/chatter.js", function (requir
         "mail.chatter",
         "ir_attachment_orphan_gc/static/src/js/chatter.js",
         {
-            // Overrides to refresh the field "attachmentGCActive"
+            // Overrides to refresh the field "attachmentGCMode"
             // of the Thread
             // async refresh() {
             //     this._super(...arguments);
-            //     this.thread.getAttachmentGCActive();
+            //     this.thread.getAttachmentGCMode();
             // },
             _onThreadIdOrThreadModelChanged() {
                 this._super(...arguments);
-                this.thread.getAttachmentGCActive();
+                this.thread.getAttachmentGCMode();
             }
         }
     );
@@ -29,10 +29,10 @@ odoo.define("ir_attachment_orphan_gc/static/src/js/chatter.js", function (requir
         "ir_attachment_orphan_gc/static/src/js/chatter.js",
         {
             // Related field to re-trigger the rendering of
-            // the qweb chatter template after the "attachmentGCActive"
+            // the qweb chatter template after the "attachmentGCMode"
             // has been refreshed on the Thread
-            threadModelAttachmentGCActive: attr({
-                related: 'thread.attachmentGCActive',
+            threadModelAttachmentGCMode: attr({
+                related: 'thread.attachmentGCMode',
             }),
         }
     );
