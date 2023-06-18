@@ -29,7 +29,7 @@ class AttachmentRelFinder(models.TransientModel):
     )
 
     # @profile
-    def _find_attachment_relations(self, attachment_id):
+    def _find_attachment_relations(self, attachment_id, force_models=None):
         """ Performs the check of attachments in "ir.attachment" according to the parameters passed.
 
             :param integer attachment_id: Id of the attachment to be searched.
@@ -37,7 +37,7 @@ class AttachmentRelFinder(models.TransientModel):
                      containing 'res_model', 'res_field', 'res_id', 'rel_type' and 'rel_name' keys.
         """
         relations = []
-        for model_name in self.env:
+        for model_name in (force_models or self.env):
             rel_fields = self.env['ir.attachment']._get_model_attachment_relations(model_name)
             if rel_fields == False:
                 continue

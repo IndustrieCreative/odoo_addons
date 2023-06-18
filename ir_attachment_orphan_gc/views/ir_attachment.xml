@@ -17,6 +17,12 @@
           <filter name="with_res_field" string="With Resource Field" domain="[('res_field', '!=', False)]"/>
           <filter name="without_res_field" string="Without Resource Field" domain="[('res_field', '=', False)]"/>
         <separator/>
+          <filter name="with_res_model" string="With Resource Model" domain="[('res_model', '!=', False)]"/>
+          <filter name="without_res_model" string="Without Resource Model" domain="[('res_model', '=', False)]"/>          
+        <separator/>
+          <filter name="with_res_id" string="With Resource ID" domain="[('res_id', 'not in', (0, False, None, ''))]"/>
+          <filter name="without_res_id" string="Without Resource ID" domain="[('res_id', 'in', (0, False, None, ''))]"/>         
+        <separator/>
           <filter name="maybe_orphan" string="Maybe orphan" domain="[('maybe_orphan', '=', True)]"/>
           <filter name="not_maybe_orphan" string="Maybe Not orphan" domain="[('maybe_orphan', '=', False)]"/>
         <separator/>
@@ -101,5 +107,23 @@
           action = records.action_uncheck_maybe_orphan()
     </field>
   </record>
+
+
+  <!-- FIX RES_ID -->
+
+  <record model="ir.actions.server" id="ir_attachment_action_server_fix_res_id">
+    <field name="name">FIX Attachment res_id</field>
+    <field name="model_id" ref="base.model_ir_attachment"/>
+    <field name="state">code</field>
+    <field name="code">
+        action = model.fix_res_id()
+    </field>
+  </record>
+
+  <menuitem
+    id="fix_attachemnt_res_id_menu"
+    parent="base.menu_custom"
+    action="ir_attachment_action_server_fix_res_id"
+    sequence="999"/>
 
 </odoo>
