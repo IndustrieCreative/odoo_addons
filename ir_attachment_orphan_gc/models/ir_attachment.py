@@ -124,7 +124,7 @@ class IrAttachment(models.Model):
         logger.info('ATTACHMENTS GC - STARTED' + ('.' if do_unlink else ' in safe mode.'))
         count = {'model': 0, 'm2m': 0, 'm2o': 0}
 
-        # Prepara la safelist effettiva
+        # Prepara la safelist effettiva
         cg_name_safelist = [ model_name
             for model_name in self.env if model_name[0:3] in self.CG_MODEL_PREFIX_SAFELIST
         ]
@@ -411,28 +411,28 @@ class IrAttachment(models.Model):
     # @todo: ?? Aggiungere constraint che dà errore se si marcano record con "res_field" != False ??
 
     # FIX RES_ID
-    @api.model
-    def fix_res_id(self):
-        attachments_to_fix = self.sudo().with_context(active_test=False).search([
-            ('res_field', '=', False),
-            ('res_model', '!=', False),
-            ('res_id', 'in', (0, False, None, ''))
-        ])
-        Relfinder = self.env['base.attachment.relfinder']
-        attachments_fixed = []
-        attachments_no_res = []
-        attachments_multi_res = []
-        for attachment in attachments_to_fix:
-            found_relations = Relfinder._find_attachment_relations(attachment.id, force_models=[attachment.res_model])
-            res_ids = list({rel['res_id'] for rel in found_relations})
-            if len(res_ids) == 1:
-                attachment.write({'res_id': res_ids[0]})
-                attachments_fixed.append(attachment)
-            elif len(res_ids) == 0:
-                attachments_no_res.append(attachment)
-            else:
-                attachments_multi_res.append(attachment)
+    # @api.model
+    # def fix_res_id(self):
+    #     attachments_to_fix = self.sudo().with_context(active_test=False).search([
+    #         ('res_field', '=', False),
+    #         ('res_model', '!=', False),
+    #         ('res_id', 'in', (0, False, None, ''))
+    #     ])
+    #     Relfinder = self.env['base.attachment.relfinder']
+    #     attachments_fixed = []
+    #     attachments_no_res = []
+    #     attachments_multi_res = []
+    #     for attachment in attachments_to_fix:
+    #         found_relations = Relfinder._find_attachment_relations(attachment.id, force_models=[attachment.res_model])
+    #         res_ids = list({rel['res_id'] for rel in found_relations})
+    #         if len(res_ids) == 1:
+    #             attachment.write({'res_id': res_ids[0]})
+    #             attachments_fixed.append(attachment)
+    #         elif len(res_ids) == 0:
+    #             attachments_no_res.append(attachment)
+    #         else:
+    #             attachments_multi_res.append(attachment)
 
-        _logger.warning(f'SISTEMATI {len(attachments_fixed)} attachment > OK.')
-        _logger.warning(f'Trovati {len(attachments_no_res)} attachment da sistemare ma senza RES_ID.')
-        _logger.warning(f'Trovati {len(attachments_multi_res)} attachment da sistemare ma con RES_ID multipli.')
+    #     _logger.warning(f'SISTEMATI {len(attachments_fixed)} attachment > OK.')
+    #     _logger.warning(f'Trovati {len(attachments_no_res)} attachment da sistemare ma senza RES_ID.')
+    #     _logger.warning(f'Trovati {len(attachments_multi_res)} attachment da sistemare ma con RES_ID multipli.')

@@ -111,7 +111,7 @@
 
   <!-- FIX RES_ID -->
 
-  <record model="ir.actions.server" id="ir_attachment_action_server_fix_res_id">
+  <!-- <record model="ir.actions.server" id="ir_attachment_action_server_fix_res_id">
     <field name="name">FIX Attachment res_id</field>
     <field name="model_id" ref="base.model_ir_attachment"/>
     <field name="state">code</field>
@@ -124,6 +124,6 @@
     id="fix_attachemnt_res_id_menu"
     parent="base.menu_custom"
     action="ir_attachment_action_server_fix_res_id"
-    sequence="999"/>
+    sequence="999"/> -->
 
 </odoo>
