@@ -4,6 +4,8 @@ from odoo import api, models
 from odoo.exceptions import UserError
 from . web_fieldattrs_helper import FieldAttrsHelper
 
+STATIC_VIEW_TYPES = ('search', 'kanban', 'calendar', 'pivot', 'activity')
+
 # Override for the purpose of automatically injecting attrs into XML elements
 # declared as targets.
 # NOTE: We override _fields_view_get() directly on the BaseModel so it is always executed,
@@ -188,12 +190,12 @@ class Base(models.AbstractModel):
                                 'invisible': '0' if self._FAH_DEBUG_MODE else '1',
                                 'readonly': '0' if self._FAH_DEBUG_MODE else '1',
                             }))
-        # Search and Kanban do not seem to require any special attention.
-        elif view_type in ('search', 'kanban', 'calendar', 'pivot'):
+        # Skip static views that do not seem to require any special attention.
+        elif view_type in STATIC_VIEW_TYPES:
             pass
         else:
             # pass
-            if isinstance(self, FieldAttrsHelper):        
+            if isinstance(self, FieldAttrsHelper):
                 raise UserError(self._dev_msg(
                     'View type not yet supported: %s' % view_type))
 
@@ -208,7 +210,7 @@ class Base(models.AbstractModel):
         if isinstance(self, FieldAttrsHelper):
             target_fields = self._FAH_FIELD_REGISTRY['model_target_fields']
             target_nodes = self._FAH_FIELD_REGISTRY['model_target_nodes'] # dict node:tag
-        
+
         if view_type == 'form':
             # - - - - - - -
             # MODEL FIELDS
@@ -384,8 +386,8 @@ class Base(models.AbstractModel):
                             tags_dict = {'model': tags}
                             self._fah_set_field_attrs(self, elem_node, attr_id, False, current_view_id, tags=tags_dict)
 
-        # Search and Kanban do not seem to require any special attention.
-        elif view_type in ('search', 'kanban', 'calendar', 'pivot'):
+        # Skip static views that do not seem to require any special attention.
+        elif view_type in STATIC_VIEW_TYPES:
             pass
         else:
             if isinstance(self, FieldAttrsHelper):
