@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sql_constraint_wizard_form" model="ir.ui.view">
+        <field name="name">sql.constraint.manager.form</field>
+        <field name="model">sql.constraint.manager</field>
+        <field name="arch" type="xml">
+            <form>
+                <group string="Model">
+                    <field name="model_id"/>
+                    <field name="constraint_type"/>
+                </group>
+
+                <separator string="Constraints Info"/>
+                <field name="constraint_info" nolabel="1"/>
+
+                <group>
+                    <field name="constraint_key_to_remove"/>
+                </group>
+
+                <footer>
+                    <button string="Remove Constraint" type="object"
+                            name="action_remove_constraint"
+                            class="btn-primary"
+                            confirm="Are you sure you want to remove this constraint?"
+                            attrs="{'invisible': [('constraint_key_to_remove', '=', False)]}"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sql_constraint_manager" model="ir.actions.act_window">
+        <field name="name">SQL Constraints Manager</field>
+        <field name="res_model">sql.constraint.manager</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_sql_constraint_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+      id="sql_constraints_manager_menu"
+      parent="field_recompute.field_recompute_utility_menu"
+      action="action_sql_constraint_manager"
+      sequence="10"/>
+
+</odoo>
