@@ -26,7 +26,7 @@ def do_record_fields_recompute(env, recs, fields):
     :param fields: list with the names of the fields to recompute;
     """
     if not recs:
-    	raise UserError('''You must specify at least one record in the "recs" argument.''')
+        raise UserError('''You must specify at least one record in the "recs" argument.''')
     for field in fields:
         env.add_to_compute(recs._fields[field], recs)
     _logger.info('**FIELD RECOMPUTE** Recomputation STARTED for the Model [ %s ] on SPECIFIED RECORDS. Recomputed fields are : %s.' % (recs._name, ', '.join(fields)))            
