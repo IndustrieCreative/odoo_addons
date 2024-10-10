@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-  <!-- Add css to backend -->
-  <template id="assets_backend" name="Field Attrs Helper - Backend Assets" inherit_id="web.assets_backend">
-    <xpath expr="." position="inside">
-      <link rel="stylesheet" type="text/css" href="/web_fieldattrs_helper/static/src/css/backend-style.css"/>
-    </xpath>
-  </template>
-</odoo>

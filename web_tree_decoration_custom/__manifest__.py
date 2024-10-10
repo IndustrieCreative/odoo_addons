@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-# https://github.com/Noviat/noviat-apps/tree/14.0/web_tree_decoration_underline
 {
     'name': 'List view custom decorators',
     'version': '15.0.1.0.0',
@@ -8,6 +6,14 @@
     'website': 'https://github.com/IndustrieCreative/odoo_addons',
     'category': 'Technical Settings',
     'depends': ['web'],
-    'data': ['views/assets_backend.xml'],
+    'data': [],
     'installable': True,
+    'assets': {
+        'web.assets_backend': [
+            'web_tree_decoration_custom/static/src/css/list_view.css',
+            'web_tree_decoration_custom/static/src/js/list_renderer.js',
+        ],
+    }
 }
+
+# @SEE: https://github.com/Noviat/noviat-apps/tree/14.0/web_tree_decoration_underline
