@@ -45,7 +45,7 @@ class RecomputeField(models.TransientModel):
                     'warning': 'Wrong value from "Action" field.',
                     'domain': {'model_id': [('id', '=', False)]}
                 }
-            model_stored_fields = self.env['ir.model.fields'].search([
+            model_stored_fields = self.env['ir.model.fields'].sudo().search([
                 ('store', '=', True),
                 ('model', '=', model)
             ], order='model')
@@ -66,11 +66,11 @@ class RecomputeField(models.TransientModel):
     
     @api.model
     def _get_stored_fields_models(self):
-        stored_fields = self.env['ir.model.fields'].search([('store', '=', True)])
+        stored_fields = self.env['ir.model.fields'].sudo().search([('store', '=', True)])
         try:
             computed_stored_fields = stored_fields.filtered(lambda field:bool(self.env[field.model_id.model]._fields[field.name].compute) if field.model_id.model in self.env else False)
         except:
-            stored_fields_models_ok = self.env['ir.model'].browse([])
+            stored_fields_models_ok = self.env['ir.model'].sudo().browse([])
         else:
             stored_fields_models = computed_stored_fields.mapped('model_id')
             stored_fields_models_ok = stored_fields_models.filtered(lambda mod: not mod.model.startswith('ir.'))

@@ -24,7 +24,7 @@ class View(models.Model):
 
     def _compute_fah_model_info(self):
         for r in self:
-            model = self.env['ir.model'].search([('model', '=', r.model)])
+            model = self.env['ir.model'].sudo().search([('model', '=', r.model)])
             r.fah_implemented = model.fah_implemented
             r.fah_model_status = model.fah_model_status
 
