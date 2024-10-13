@@ -3,15 +3,14 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 {
-    # "name": "ITA - Codici Ateco",
-    "name": "ITA - Codici Ateco (base)",
+    "name": "ITA - Codici Ateco",
     "version": "14.0.1.1.0",
     "category": "Localization/Italy",
     "author": "Abstract,Odoo Community Association (OCA),Odoo Italia Network",
     "development_status": "Beta",
     "website": "https://github.com/OCA/l10n-italy",
     "license": "AGPL-3",
-    "depends": ["base"],  # ["contacts"],
+    "depends": ["base"],
     "data": [
         "security/ir.model.access.csv",
         "view/ateco_view.xml",
