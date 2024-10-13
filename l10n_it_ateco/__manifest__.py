@@ -3,8 +3,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 {
-    "name": "ITA - Codici Ateco",
-    "version": "14.0.1.1.0",
+    "name": "ITA - Codici Ateco (base)",
+    "version": "15.0.1.0.0",
     "category": "Localization/Italy",
     "author": "Abstract,Odoo Community Association (OCA),Odoo Italia Network",
     "development_status": "Beta",
