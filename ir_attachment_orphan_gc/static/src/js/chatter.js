@@ -4,8 +4,8 @@ odoo.define("ir_attachment_orphan_gc/static/src/js/chatter.js", function (requir
     const {
         registerFieldPatchModel,
         registerInstancePatchModel
-    } = require("mail/static/src/model/model_core.js");
-    const {attr} = require("mail/static/src/model/model_field.js");
+    } = require("@mail/model/model_core");
+    const {attr} = require("@mail/model/model_field");
 
     registerInstancePatchModel(
         "mail.chatter",

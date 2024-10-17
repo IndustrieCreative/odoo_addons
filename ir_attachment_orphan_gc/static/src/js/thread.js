@@ -4,8 +4,8 @@ odoo.define("ir_attachment_orphan_gc/static/src/js/thread.js", function (require
     const {
         registerFieldPatchModel,
         registerInstancePatchModel
-    } = require("mail/static/src/model/model_core.js");
-    const {attr} = require("mail/static/src/model/model_field.js");
+    } = require("@mail/model/model_core");
+    const {attr} = require("@mail/model/model_field");
 
     registerInstancePatchModel(
         "mail.thread",
@@ -28,7 +28,10 @@ odoo.define("ir_attachment_orphan_gc/static/src/js/thread.js", function (require
                         }
                     )
                 );
-                console.log(resAttachmentGCMode);
+                console.log(
+                    'ASC: The model ' + model + ' has the Attachment GC Mode set to "'
+                    + resAttachmentGCMode + '".'
+                ); 
                 this.update({
                     attachmentGCMode: resAttachmentGCMode,
                 });
