@@ -686,8 +686,6 @@ computed Char fields are automatically created, the "helper fields":
 - ``fah_invisible_targets``
 - ``fah_column_invisible_targets``
 
-> NOTE: The prefix ``fah_`` is customizable in each model, to avoid possible collisions.
-
 All these helper fields will be automatically injected into all views of the model.
 The helper fields are by default *invisible* and *readonly*.
 To make them visible you can activate the debug mode as explained in the section
@@ -1214,9 +1212,6 @@ List of ops to be managed by the helper, in list form.
 > NOTE: If the op is present in the list, it will be checked during the corresponding
 > method.
 
----
-Prefix of helper fields, customizable to avoid name collisions.
-- ``_FAH_FIELDS_PREFIX = 'fah_'``
 ---
 Target field name delimiter, to avoid false positives in the "like" (e.g. "name" and
 "surname")

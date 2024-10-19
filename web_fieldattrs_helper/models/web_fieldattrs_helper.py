@@ -50,7 +50,8 @@ class FieldAttrsHelper(models.AbstractModel):
     
     #==================================================
     # ** MODEL INIT **
-    # Dynamically computes model attributes
+    # Dynamically computes model attributes and checks.
+
     def __init__(self, pool, cr):
         init_res = super(FieldAttrsHelper, self).__init__(pool, cr)
 
@@ -61,58 +62,13 @@ class FieldAttrsHelper(models.AbstractModel):
                 'delimiters _FAH_ATTRS_FIELDS_DELIMITER and _FAH_ATTRS_TAG_DELIMITER '
                 'must be different!'
             )
-
-        # Creates attributes (on the instance) that must take custom values
-        # based on overrides made on models that inherit this abstract model.
-        # type(self)._FAH_ATTRS_FIELDS = [self._FAH_FIELDS_PREFIX+attr+'_targets' for attr in self._FAH_ATTRS]
-        # type(self)._FAH_ATTRS_TUPLES = list(zip(self._FAH_ATTRS, self._FAH_ATTRS_FIELDS)) # (attr, helper field name)
-        # @todo: does it make a difference between reading from self._FAH_ATTRS_FIELDS and type(self)._FAH_ATTRS_FIELDS ??
-        # type(self)._FAH_OPS_FIELDS = [self._FAH_FIELDS_PREFIX+op for op in self._FAH_OPS]
-        # type(self)._FAH_OPS_MSG_FIELDS = [self._FAH_FIELDS_PREFIX+op+'_msg' for op in self._FAH_OPS]
-        # type(self)._FAH_OPS_TUPLES = list(zip(self._FAH_OPS, self._FAH_OPS_FIELDS, self._FAH_OPS_MSG_FIELDS)) # (attr, helper field name, message helper field name)
-
-        # type(self)._FAH_BYPASS_FIELD = self._FAH_FIELDS_PREFIX+'bypass'
-        # type(self)._FAH_STARTER_FIELD = self._FAH_FIELDS_PREFIX+'starter'
-        # type(self)._FAH_FIRST_TRIGGER_FIELD = self._FAH_FIELDS_PREFIX+'first_trigger'
-        # type(self)._FAH_BYPASS_GROUPS_ALL = [self._FAH_BYPASS_CORE_GROUP, *self._FAH_BYPASS_GROUPS_ADD]
-        
-        # type(self)._FAH_BLACKLIST_CORE_FIELDS = [
-        #     *type(self)._FAH_ATTRS_FIELDS,
-        #     *type(self)._FAH_OPS_FIELDS,
-        #     *type(self)._FAH_OPS_MSG_FIELDS,
-        #     type(self)._FAH_BYPASS_FIELD
-        # ]
-        # type(self)._FAH_FIELD_REGISTRY = dict()
-        # type(self)._FAH_COMPUTE_MRO_CHAIN = dict()
-
-        # Set the onchange starter field dinamically
-        # self._FAH_FIELD_REGISTRY['starter_field']
-        # self._FAH_FIELD_REGISTRY['first_trigger_field']
-        @api.onchange(self._FAH_STARTER_FIELD)
-        def _fah_onchange_starter_field(self):
-            self[self._FAH_FIRST_TRIGGER_FIELD] = not self[self._FAH_FIRST_TRIGGER_FIELD]
-        type(self)._fah_onchange_starter_field = _fah_onchange_starter_field
-        # FieldAttrsHelper._fah_onchange_starter_field = _fah_onchange_starter_field
-        # setattr(self, '_fah_onchange_starter_field', _fah_onchange_starter_field)
         return init_res
 
-    # def init(self):
-    #     @api.onchange(self._FAH_STARTER_FIELD)
-    #     def _fah_onchange_starter_field(self):
-    #         self[self._FAH_FIRST_TRIGGER_FIELD] = not self[self._FAH_FIRST_TRIGGER_FIELD]
-    #     self._fah_onchange_starter_field = _fah_onchange_starter_field
-
-    # @property
-    # def _fah_onchange_starter_field(self):
-    #     return self._FAH_FIELD_REGISTRY.get('onchange_starter_field')
-
-    # @_fah_onchange_starter_field.setter
-    # def _fah_onchange_starter_field(self, onchange_fn):
-    #     self._FAH_FIELD_REGISTRY = {'onchange_starter_field': onchange_fn}
-
+    # Creates properties that contain dynamic values depending on some customisable
+    # attributes.
     @property
     def _FAH_ATTRS_FIELDS(self):
-        return [self._FAH_FIELDS_PREFIX + attr + '_targets' for attr in self._FAH_ATTRS]
+        return ['fah_' + attr + '_targets' for attr in self._FAH_ATTRS]
 
     @property
     def _FAH_ATTRS_TUPLES(self):
@@ -120,27 +76,21 @@ class FieldAttrsHelper(models.AbstractModel):
 
     @property
     def _FAH_OPS_FIELDS(self):
-        return [self._FAH_FIELDS_PREFIX+op for op in self._FAH_OPS]
+        return ['fah_'+op for op in self._FAH_OPS]
 
     @property
     def _FAH_OPS_MSG_FIELDS(self):
-        return [self._FAH_FIELDS_PREFIX+op+'_msg' for op in self._FAH_OPS]
+        return ['fah_'+op+'_msg' for op in self._FAH_OPS]
 
     @property
     def _FAH_OPS_TUPLES(self):
         return list(zip(self._FAH_OPS, self._FAH_OPS_FIELDS, self._FAH_OPS_MSG_FIELDS))  # (attr, helper field name, message helper field name)
 
-    @property
-    def _FAH_BYPASS_FIELD(self):
-        return self._FAH_FIELDS_PREFIX+'bypass'
+    _FAH_BYPASS_FIELD = 'fah_bypass'
 
-    @property
-    def _FAH_STARTER_FIELD(self):
-        return self._FAH_FIELDS_PREFIX+'starter'
+    _FAH_STARTER_FIELD = 'fah_starter'
 
-    @property
-    def _FAH_FIRST_TRIGGER_FIELD(self):
-        return self._FAH_FIELDS_PREFIX+'first_trigger'
+    _FAH_FIRST_TRIGGER_FIELD = 'fah_first_trigger'
 
     @property
     def _FAH_BYPASS_GROUPS_ALL(self):
@@ -198,8 +148,7 @@ class FieldAttrsHelper(models.AbstractModel):
         super(FieldAttrsHelper, self)._add_inherited_fields()
         
         if self._name != 'web.fieldattrs.helper':
-        # Otherwise it also creates the fields with the abstract model prefix...
-        # (I still don't understand why...)
+        # Otherwise it also creates the fields with the abstract model prefix
 
             # Internal function to add fields safely.
             def add_helper(name, field):
@@ -268,8 +217,6 @@ class FieldAttrsHelper(models.AbstractModel):
     _FAH_OPS = ['no_read', 'no_write', 'no_create', 'no_unlink']
     # Type of views you want to inject the attrs into
     _FAH_VIEWS = ['form', 'tree', 'embedded_form', 'embedded_tree']
-    # Prefix of helper fields, customisable to avoid name collisions.
-    _FAH_FIELDS_PREFIX = 'fah_'
     # Target field name delimiters, to avoid false positives in the "like" (e.g. "name" and "surname")
     # Please note that the fields delimiter and the tag delimiter must be different.
     # Be careful to use only ASCII symbols, not alphanumeric characters and not uderscore (_).
@@ -401,6 +348,11 @@ class FieldAttrsHelper(models.AbstractModel):
     #           practicable and what side effects it would cause. ??
     #======================================
     # ** SETUP **
+
+    @api.onchange('fah_starter')
+    def _fah_onchange_starter_field(self):
+        self.fah_first_trigger = not self.fah_first_trigger
+
     # Compute method for the helper fields
     @api.depends(lambda self: [self._FAH_FIRST_TRIGGER_FIELD, self._FAH_BYPASS_FIELD])
     def _fah_compute_helper_fields(self, attr_reg=False, eval_mode=False, override=False):
@@ -519,17 +471,6 @@ class FieldAttrsHelper(models.AbstractModel):
                 # if self._FAH_NO_UNLINK_CHECK:
                 #     r[self._FAH_NO_UNLINK_FIELD] = False
                 #     r[self._FAH_NO_UNLINK_MSG_FIELD] = '/'
-
-
-    # Deprecated – Used in v12 when helper fields had to be stored.
-    # Forces re-computation of the values of helper fields only on
-    # the passed recordset (self).
-    # def _action_records_fields_recompute_attrs(self):
-    #     helper_fields = self._FAH_ATTRS_FIELDS
-    #     for field in helper_fields:
-    #         self.env.add_to_compute(self._fields[field], self)
-    #     self.recompute()
-
 
     # ===================================================================
     # ORM OVERRIDES

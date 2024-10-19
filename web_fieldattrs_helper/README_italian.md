@@ -685,9 +685,6 @@ creati automaticamente 4 campi computed di tipo Char, i "campi helper":
 - ``fah_invisible_targets``
 - ``fah_column_invisible_targets``
 
-> NB: Il prefisso ``fah_`` è personalizzabile in ciascun modello, per evitare eventuali
-  collisioni.
-
 Tutti questi campi helper saranno iniettati automaticamente in tutte le view del modello.
 I campi helper sono di default *invisible* e *readonly*.
 Per renderli visibili si può attivare la modalità debug come illustrato nella sezione
@@ -1217,9 +1214,6 @@ Elenco delle ops da gestire tramite l'helper, sotto forma di list.
 > NB: Se l'op è presente nella lista, verrà effettuato il controllo durante il relativo
 >     metodo.
 
----
-Prefisso dei campi helper, personalizzabile per evitare collisioni di nomi.
-- ``_FAH_FIELDS_PREFIX = 'fah_'``
 ---
 Delimitatore nomi campi target, per evitare falsi positivi nel "like" (es. "name" and "surname")
 - ``_FAH_ATTRS_FIELDS_DELIMITER = '@'``

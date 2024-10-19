@@ -14,7 +14,6 @@ class DemoModel1(models.Model):
     _rec_name = 'name'
     _order = 'name'
 
-    _FAH_FIELDS_PREFIX = 'asc1_'
     _FAH_ATTRS_FIELDS_DELIMITER = '$'
     _FAH_DEBUG_MODE = True
 
