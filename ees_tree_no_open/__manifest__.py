@@ -1,6 +1,6 @@
 {
     'name': 'Tree no open',
-    'version': '15.0.1.0.0',
+    'version': '16.0.1.0.0',
     'author': 'EESTISOFT, ''Giulio Milani, ''Hideki Yamamoto',
     'category': 'Productivity',
     'website': 'https://github.com/EESTISOFT/ees_tree_no_open',
