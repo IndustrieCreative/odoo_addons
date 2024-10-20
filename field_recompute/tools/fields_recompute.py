@@ -15,7 +15,8 @@ def do_fields_recompute(env, model_name, fields):
     for field in fields:
         env.add_to_compute(model._fields[field], recs)
     _logger.info('**FIELD RECOMPUTE** Recomputation STARTED for the Model [ %s ] on ALL RECORDS. Recomputed fields are : %s.' % (model_name, ', '.join(fields)))            
-    model.recompute()
+    env._recompute_all()
+    # model.recompute()
     # env.cr.commit()
     _logger.info('**FIELD RECOMPUTE** Recomputation TERMINATED for the Model [ %s ] on ALL RECORDS. Recomputed fields are: %s.' % (model_name, ', '.join(fields)))
 
@@ -30,6 +31,7 @@ def do_record_fields_recompute(env, recs, fields):
     for field in fields:
         env.add_to_compute(recs._fields[field], recs)
     _logger.info('**FIELD RECOMPUTE** Recomputation STARTED for the Model [ %s ] on SPECIFIED RECORDS. Recomputed fields are : %s.' % (recs._name, ', '.join(fields)))            
-    recs.recompute()
+    env._recompute_all()
+    # recs.recompute()
     # env.cr.commit()
     _logger.info('**FIELD RECOMPUTE** Recomputation TERMINATED for the Model [ %s ] on SPECIFIED RECORDS. Recomputed fields are: %s.' % (recs._name, ', '.join(fields)))
