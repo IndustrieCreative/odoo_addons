@@ -18,9 +18,7 @@
     'assets': {
         'web.assets_backend': [
             'ir_attachment_orphan_gc/static/src/js/thread.js',
-            'ir_attachment_orphan_gc/static/src/js/chatter.js'
-        ],
-        'web.assets_qweb': [
+            'ir_attachment_orphan_gc/static/src/js/chatter.js',
             'ir_attachment_orphan_gc/static/src/xml/chatter_topbar.xml',
         ],
     }
