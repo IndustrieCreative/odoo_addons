@@ -1,31 +1,47 @@
-# -*- coding: utf-8 -*-
-from odoo import api, models
-from odoo.exceptions import UserError
+from odoo import api, models, fields
+from odoo.exceptions import ValidationError
 
 class View(models.Model):
     _inherit = 'ir.ui.view'
 
-    def get_inheriting_views_arch(self, model):
+    inheritance_group_ids = fields.Many2many(
+        comodel_name = 'res.groups',
+        relation = 'ir_ui_view_res_group_bvdi_rel',
+        column1 = 'view_id',
+        column2 = 'group_id',
+        string = 'Inheritance Groups',
+        help = 'Only on intherited views, if this field is empty, the view '
+               'applies to all users. Otherwise, the view applies to the users '
+               'of these groups only.'
+    )
 
-        res = super(View, self).get_inheriting_views_arch(model)
-        viewS_to_add = self.env.context.get('bvdi_force_add_inheriting_views', False)
+    # If inheritance_group_ids is not empty, the fields `inherit_id` must be
+    # not empty as well, and the `mode` field must be set to 'extension'.
+    @api.constrains('inheritance_group_ids', 'inherit_id', 'mode')
+    def _check_inheritance_group_ids(self):
+        for r in self:
+            if r.inheritance_group_ids and (not r.inherit_id or r.mode != 'extension'):
+                raise ValidationError(
+                    "If the field 'inheritance_group_ids' is populated, inherit_id "
+                    "must be populated as well, and mode must be set to 'extension'."
+                )
 
-        if viewS_to_add:
-            for view_to_add in viewS_to_add:
-                if view_to_add['view_id'] == self.id:
-                    inherit_view = self.search([('id', '=', view_to_add['inherit_view_id'])])
+    # Remove views that are not accessible to the current user according to
+    # the inheritance_group_ids field. If the field is empty, the view is
+    # accessible to all users. Otherwise, the view is accessible to the users
+    # of the groups listed in the field.
+    def _get_inheriting_views(self):
 
-                    res |= inherit_view
+        res = super()._get_inheriting_views()
 
-                    # if view_to_add['inherit_position'] == 'append':
-                    #     res.append((inherit_view.arch, inherit_view.id))
-                    #     # res.insert(-1, (inherit_view.arch, inherit_view.id))
-                    # elif view_to_add['inherit_position'] == 'prepend':
-                    #     # res.prepend((inherit_view.arch, inherit_view.id))
-                    #     res.insert(0, (inherit_view.arch, inherit_view.id))
-                    # else:
-                    #     raise UserError("The key 'view_position' of the dict 'bvdi_force_add_inheriting_views' in the context has an unexpected value! ")
-        else:
-            pass
+        # Get the groups of the current user
+        user_groups = self.env.user.groups_id
 
-        return res
+        # Filter out views where the inheritance_group_ids is not in the user's groups
+        filtered_res = res.filtered(
+            lambda view:
+                not view.inheritance_group_ids or
+                (user_groups & view.inheritance_group_ids)
+        )
+
+        return filtered_res

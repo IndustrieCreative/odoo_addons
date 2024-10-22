@@ -1,97 +1,45 @@
 # Dynamic views inheritance
 
-A technical module to dynamically load inherited views.
+A technical module to dynamically load inherited views according to the user's group.
 
+The feature that allows you to load inherited views dynamically according to the
+user's groups, [was deprecated since Odoo 16.0](https://github.com/odoo/odoo/pull/98551). This module is a sort of backport that provides a way to achieve the same result.
 
-## Usage
+Useful especially to conditionally override a view arch root node like `tree`
+or `form` because it could be very inconvenient to use the `groups` attribute on
+these types of nodes since it would require to duplicate the whole view/subview
+even if you just want to change a simple attribute.
 
-The module create the new group ***base_view_dynamic_inheritance.dynamic_inheritance_void_group*** that should never be associated with any user.
-
-Just associate the inherit views that you want to load only under certain conditions to this specific group (so by default odoo always ignores them because no user is in that group).
-
-        <field name="groups_id" eval="[(4, ref('base_view_dynamic_inheritance.dynamic_inheritance_void_group'))]"/>
-
-Then, in the context of the action window you pass the XML id of the view/s you want to load and its inherited view/s.
-Position must be "prepend" or "append" to manage the load order of the inherited views. I suggest to always use "append" if there is no reason to do otherwise.
-
-    'context': {
-        'bvdi_force_add_inheriting_views': [{
-            'view_id': view_form_id,
-            'inherit_view_id': view_form_inherit_id,
-            'inherit_position': 'append'
-        }]
-    }
+For all other cases, [it is recommended](https://github.com/odoo/odoo/pull/98551)
+to use the `groups` attribute on the target node directly in the main view.
 
 ## Example
 
 Inherited view (XML file)
 
-    <?xml version="1.0" encoding="utf-8"?> 
+    <?xml version="1.0" encoding="utf-8"?>
     <odoo> 
 
-      <record id="my_dynamic_inherit_form_view" model="ir.ui.view">
-        <field name="name">Example of dynamically inherited form view</field>
+      <record id="my_dynamic_inherit_tree_view" model="ir.ui.view">
+        <field name="name">Example of dynamically inherited tree view</field>
         <field name="model">my.model</field>
         <!-- The view to override -->
-        <field name="inherit_id" ref="my_module.my_form_view"/>
-        <!-- Limit this inherit to 'dynamic_inheritance_void_group' -->
-        <field name="groups_id" eval="[(4, ref('base_view_dynamic_inheritance.dynamic_inheritance_void_group'))]"/>
+        <field name="inherit_id" ref="my_module.my_tree_view"/>
+        <!-- Inherits this view only if the users is in the group 'my_module.my_group' -->
+        <field name="inheritance_group_ids" eval="[(4, ref('my_module.my_group'))]"/>
         <field name="arch" type="xml">
 
           <!-- Your overrides here ... -->
+
+          <!-- Example -->
+          <tree position="attributes">
+            <attribute name="create">false</attribute>
+            <attribute name="delete">false</attribute>
+            <attribute name="import">false</attribute>
+          </tree>
 
         </field>
       </record>
 
     </odoo> 
-
-Action (Python file)
-
-    class ExampleModel(models.Model):
-        # ...
-        
-        def action_open_my_view(self)
-
-            view_tree_id = self.env.ref('my_module.my_tree_view').id
-            view_form_id = self.env.ref('my_module.my_form_view').id
-            view_form_inherit_id = self.env.ref('my_module.my_dynamic_inherit_form_view').id
-
-            return {
-	            'name': 'My view title',
-	            'type': 'ir.actions.act_window',
-	            'res_model': 'my.model',
-	            'view_mode': 'tree, form',
-	            'views': [(view_tree_id, 'tree'), (view_form_id, 'form')],
-	            'context': {
-	                # List of dict containing the views you want to force the intherit of.
-	                # <!> You need to make sure that the relationship of inheritance between 'view_id' and 'inherit_view_id' is correct
-	                # <!> and conforms to what is described in the inherited view (in this example 'my_dynamic_inherit_form_view')
-	                'bvdi_force_add_inheriting_views': [{
-	                    'view_id': view_form_id,
-	                    'inherit_view_id': view_form_inherit_id,
-	                    'inherit_position': 'append'
-	                }]
-	            },
-		}
-
-Action (XML File)
-
-    <record id="my_action_window" model="ir.actions.act_window" >
-        <field name="name">My view name</field>
-        <field name="res_model">my.model</field>
-        <field name="view_mode">tree,form</field>
-        <field name="view_ids"
-               eval="[(5, 0, 0),
-                      (0, 0, {'view_mode': 'tree', 'view_id': ref('my_module.my_tree_view')}),
-                      (0, 0, {'view_mode': 'form', 'view_id': ref('my_module.my_form_view')})]"/>
-        <field name="context" eval="
-            {
-                'bvdi_force_add_inheriting_views': [{
-                    'view_id': ref('my_module.my_form_view'),
-                    'inherit_view_id': ref('my_module.my_dynamic_inherit_form_view'),
-                    'inherit_position': 'append'
-                }]
-            }"
-        />
-    </record>
 
