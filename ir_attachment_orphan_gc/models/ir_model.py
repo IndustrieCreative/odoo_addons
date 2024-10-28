@@ -87,5 +87,5 @@ class IrModel(models.Model):
         #        to check if the Chatter is re-rendering after
         #        the form is loaded.
         # time.sleep(5)
-        model = self.search([("model", "=", model_name)])
+        model = self.sudo().search([("model", "=", model_name)])
         return 'not-o2m' if model.attachment_gc_active_not_o2m else 'o2m'

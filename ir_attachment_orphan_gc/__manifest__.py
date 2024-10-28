@@ -7,7 +7,7 @@
     'website': 'https://github.com/IndustrieCreative/odoo_addons',
     'category': 'Technical Settings',
     'version': '16.0.1.0.0',
-    'depends': ['base', 'mail'],
+    'depends': ['base', 'mail', 'web_responsive'],
     'application': False,
     'data': [
         'security/ir.model.access.csv',

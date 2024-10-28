@@ -3,11 +3,24 @@
 
 <!-- Hides the Attachment button and counter in the Chatter Topbar -->
 <t t-name="ChatterTopbar" t-inherit="mail.ChatterTopbar" t-inherit-mode="extension" owl="1">
-    <xpath expr="//button[hasclass('o_ChatterTopbar_buttonAttachments')]" position="attributes">
 
-    <attribute name="t-if">chatter.thread.attachmentGCMode == 'o2m'</attribute>
-    <!-- <attribute name="t-if">chatter.threadModelAttachmentGCMode == 'o2m'</attribute> -->
+    <!-- Override for 'web_responsive' (OCA) -->
+    <xpath expr="(//button[hasclass('o_ChatterTopbar_buttonToggleAttachments')])[1]" position="attributes">
+        <attribute name="t-if">chatterTopbar.chatter.thread.allAttachments.length === 0 &amp;&amp; chatterTopbar.chatter.thread.attachmentGCMode == 'o2m'</attribute>
+    </xpath>
 
+    <xpath expr="(//button[hasclass('o_ChatterTopbar_buttonToggleAttachments')])[1]" position="attributes">
+        <attribute name="t-if">chatterTopbar.chatter.thread.allAttachments.length > 0 &amp;&amp; chatterTopbar.chatter.thread.attachmentGCMode == 'o2m'</attribute>
+    </xpath>
+
+    <!-- Override for 'web' (core) -->
+    <xpath expr="(//button[hasclass('o_ChatterTopbar_buttonToggleAttachments')])[2]" position="attributes">
+        <attribute name="t-if">chatterTopbar.chatter.thread.allAttachments.length === 0 &amp;&amp; chatterTopbar.chatter.thread.attachmentGCMode == 'o2m'</attribute>
+    </xpath>
+
+    <xpath expr="(//button[hasclass('o_ChatterTopbar_buttonToggleAttachments')])[2]" position="attributes">
+        <attribute name="t-if">chatterTopbar.chatter.thread.allAttachments.length > 0 &amp;&amp; chatterTopbar.chatter.thread.attachmentGCMode == 'o2m'</attribute>
     </xpath>
 </t>
+
 </template>
