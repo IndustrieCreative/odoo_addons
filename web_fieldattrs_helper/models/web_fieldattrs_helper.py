@@ -52,8 +52,8 @@ class FieldAttrsHelper(models.AbstractModel):
     # ** MODEL INIT **
     # Dynamically computes model attributes and checks.
 
-    def __init__(self, pool, cr):
-        init_res = super(FieldAttrsHelper, self).__init__(pool, cr)
+    def __init__(self, env, ids, prefetch_ids):
+        init_res = super(FieldAttrsHelper, self).__init__(env, ids, prefetch_ids)
 
         # Check that the delimiters are different
         if self._FAH_ATTRS_FIELDS_DELIMITER == self._FAH_ATTRS_TAG_DELIMITER:

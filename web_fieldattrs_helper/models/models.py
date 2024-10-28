@@ -17,15 +17,10 @@ class Base(models.AbstractModel):
 
     # Injects helper fields and "attrs" into the views.
     @api.model
-    def _fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-        res = super(Base, self)._fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
-        
-        doc = etree.XML(res['arch'])
+    def _get_view(self, view_id=None, view_type="form", **options):
+        arch, view = super()._get_view(view_id=view_id, view_type=view_type, **options)
 
-        if 'view_id' in res:
-            current_view_id = res['view_id']
-        else:
-            current_view_id = False
+        current_view_id = view.id
 
         #---------------------------------------------------------
         # HELPER FIELDS
@@ -41,11 +36,11 @@ class Base(models.AbstractModel):
             if isinstance(self, FieldAttrsHelper):
                 if self._FAH_XML_INJECT and 'form' in self._FAH_VIEWS:
                     # If a <sheet> node exists, use that, otherwise use the <form>
-                    sheet_nodes = doc.xpath("//sheet[not (ancestor::field)]")
+                    sheet_nodes = arch.xpath("//sheet[not (ancestor::field)]")
                     if len(sheet_nodes) > 0:
                         main_nodes = sheet_nodes
                     else:
-                        main_nodes = doc.xpath("//form[not (ancestor::field)]")
+                        main_nodes = arch.xpath("//form[not (ancestor::field)]")
 
                     for main_node in main_nodes:
                         # From Debug mode
@@ -140,7 +135,7 @@ class Base(models.AbstractModel):
             #       For now, on embdedded/inline forms it does not look for the possible sheet,
             #       and does not inject helper fields in debug mode.
 
-            for embed_node in doc.xpath("//tree[(ancestor::field)] | //form[(ancestor::field)]"):
+            for embed_node in arch.xpath("//tree[(ancestor::field)] | //form[(ancestor::field)]"):
                 model, rel_field_name, comodel, level = self._get_embedding_model_and_field(view_id, embed_node)
                 
                 # If the comodel implements the helper's abstract model
@@ -183,7 +178,7 @@ class Base(models.AbstractModel):
         elif view_type == 'tree':
             if isinstance(self, FieldAttrsHelper):        
                 if self._FAH_XML_INJECT and 'tree' in self._FAH_VIEWS:
-                    for tree_node in doc.xpath("//tree"):
+                    for tree_node in arch.xpath("//tree"):
                         for hf_name in self._FAH_ATTRS_FIELDS:
                             tree_node.append(etree.Element('field', {
                                 'name': hf_name, 
@@ -218,13 +213,13 @@ class Base(models.AbstractModel):
                 # Set attrs for all fields not inside embedded/inline views
                 if self._FAH_XML_INJECT and self._FAH_XML_INJECT_ATTRS and 'form' in self._FAH_VIEWS:
                     for tf_name, tags in target_fields.items():            
-                        for field_node in doc.xpath("//field[@name='%s' and not (ancestor::field)]" % tf_name):
+                        for field_node in arch.xpath("//field[@name='%s' and not (ancestor::field)]" % tf_name):
                             tags_dict = {'model': tags}
                             self._fah_set_field_attrs(self, field_node, 'name', tf_name, current_view_id, tags=tags_dict)
                         
                     for tn_def, tags in target_nodes.items():
                         tag_id, attr_id, attr_val_id = tn_def
-                        for elem_node in doc.xpath("//%s[@%s='%s' and not (ancestor::field)]" % (tag_id, attr_id, attr_val_id)):
+                        for elem_node in arch.xpath("//%s[@%s='%s' and not (ancestor::field)]" % (tag_id, attr_id, attr_val_id)):
                         # for elem_node in doc.xpath("//%s[@%s='%s' and not (parent::tree or parent::graph or parent::kanban or parent::calendar)]" % (tag_id, attr_id, attr_val_id)):
                             tags_dict = {'model': tags}
                             self._fah_set_field_attrs(self, elem_node, attr_id, False, current_view_id, tags=tags_dict)
@@ -236,7 +231,7 @@ class Base(models.AbstractModel):
             #        not_supported_embed = doc.xpath("//*[self::graph or self::kanban or self::calendar]")
             
             # Embedded Forms
-            for form_node in doc.xpath("//form[(ancestor::field)]"):
+            for form_node in arch.xpath("//form[(ancestor::field)]"):
                 # Search for parent
                 model, rel_field_name, comodel, level = self._get_embedding_model_and_field(view_id, form_node)
 
@@ -262,7 +257,7 @@ class Base(models.AbstractModel):
                                     self._fah_set_field_attrs(comodel, field_node, attr_id, False, current_view_id, parent_model=model, rel_field_name=rel_field_name, attrs_mode='comodel_only', tags=tags_dict)
 
             # Embedded Trees
-            for tree_node in doc.xpath("//tree[(ancestor::field)]"):
+            for tree_node in arch.xpath("//tree[(ancestor::field)]"):
                 # Search for parent
                 model, rel_field_name, comodel, level = self._get_embedding_model_and_field(view_id, tree_node)
 
@@ -376,13 +371,13 @@ class Base(models.AbstractModel):
             if isinstance(self, FieldAttrsHelper):
                 if self._FAH_XML_INJECT and self._FAH_XML_INJECT_ATTRS and 'tree' in self._FAH_VIEWS:
                     for tf_name, tags in target_fields.items():            
-                        for field_node in doc.xpath("//field[@name='%s']" % tf_name):
+                        for field_node in arch.xpath("//field[@name='%s']" % tf_name):
                             tags_dict = {'model': tags}
                             self. _fah_set_field_attrs(self, field_node, 'name', tf_name, current_view_id, tags=tags_dict)
 
                     for tn_def, tags in target_nodes.items():
                         tag_id, attr_id, attr_val_id = tn_def
-                        for elem_node in doc.xpath("//%s[@%s='%s']" % (tag_id, attr_id, attr_val_id)):
+                        for elem_node in arch.xpath("//%s[@%s='%s']" % (tag_id, attr_id, attr_val_id)):
                             tags_dict = {'model': tags}
                             self._fah_set_field_attrs(self, elem_node, attr_id, False, current_view_id, tags=tags_dict)
 
@@ -393,11 +388,8 @@ class Base(models.AbstractModel):
             if isinstance(self, FieldAttrsHelper):
                 raise UserError(self._dev_msg(
                     'View type not yet supported: %s' % view_type))
-            # pass
-
-        res['arch'] = etree.tostring(doc, encoding='unicode')
     
-        return res
+        return arch, view
 
     # Method to get all necessary information from an embedded node
     def _get_embedding_model_and_field(self, view_id, embedded_arch_node, ancestor_fields=False):
@@ -421,7 +413,7 @@ class Base(models.AbstractModel):
                         models_chain.append(models_chain[counter][rel_field])
                     else:
                         message = f'''Field [ {rel_field} ] does not exist on model [ {models_chain[counter]._name} ].'''
-                        self.env['ir.ui.view'].handle_view_error(message) #, view_id)
+                        self.env['ir.ui.view']._raise_view_error(message, node=embedded_arch_node) #, view_id)
                     counter += 1
                 return (models_chain[-2], ancestor_fields[0], models_chain[-1], len(ancestor_fields))
             else:

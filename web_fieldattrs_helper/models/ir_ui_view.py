@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# from lxml import etree
+from lxml import etree
 from odoo import fields, models
 from . web_fieldattrs_helper import FieldAttrsHelper
 
@@ -34,8 +34,8 @@ class View(models.Model):
             if r.model:
                 Model = self.env[r.model]
                 if isinstance(Model, FieldAttrsHelper):
-                    view = Model._fields_view_get(view_id=r.id, view_type=r.type)
-                    r.sudo().fah_overridden_view = view['arch']
+                    arch, view = Model._get_view(view_id=None, view_type="form")
+                    r.sudo().fah_overridden_view = etree.tostring(arch, encoding='unicode')
 
 
     # !! CURRENTLY DEACTIVATED !!
