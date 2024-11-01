@@ -43,7 +43,10 @@ patch(ListRenderer.prototype, "web_tree_dynamic_colored_field_list_renderer", {
                 const color_to_expression = this.pairColorParse(color_def);
                 if (color_to_expression !== undefined) {
                     const [color, expression] = color_to_expression;
-                    if (evaluateExpr(expression, record.evalContextWithVirtualIds)) {
+                    if (evaluateExpr(expression, record.evalContext)) {
+                    // @TODO: [MIG] check if it's better to use evaluateBooleanExpr
+                    //        from Odoo 17.0
+                    // if (evaluateBooleanExpr(expression, record.evalContext)) {
                         // We don't return first match,
                         // as it can be default color (with "True" expression),
                         // and later more precise condition may be found.
@@ -71,3 +74,13 @@ patch(ListRenderer.prototype, "web_tree_dynamic_colored_field_list_renderer", {
         return undefined;
     },
 });
+
+// function evaluateBooleanExpr(expr, context = {}) {
+//     if (!expr || expr === 'False' || expr === '0') {
+//         return false;
+//     }
+//     if (expr === 'True' || expr === '1') {
+//         return true;
+//     }
+//     return evaluateExpr(`bool(${expr})`, context);
+// }
