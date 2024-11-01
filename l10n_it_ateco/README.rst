@@ -38,6 +38,13 @@ the activities of a partner.
 .. contents::
    :local:
 
+WARNING - Mods IC
+=================
+
+To avoid installing "Contacts", before loading the updated version,
+remove the `contacts` module from the dependencies and also the line
+`parent="contacts.res_partner_menu_config"` from the file `view/ateco_view.xml`.
+
 Known issues / Roadmap
 ======================
 
