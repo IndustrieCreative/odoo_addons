@@ -2,6 +2,7 @@
     'name': 'Tree no open',
     'version': '16.0.1.0.0',
     'author': 'EESTISOFT, ''Giulio Milani, ''Hideki Yamamoto',
+    'license': 'AGPL-3',
     'category': 'Productivity',
     'website': 'https://github.com/EESTISOFT/ees_tree_no_open',
     'summary': 'Allows to set "no open" attribute on tree view',
