@@ -500,19 +500,23 @@ class FieldAttrsHelper(models.AbstractModel):
         self._check_ops('no_unlink', self, 'DELETE')
         return super(FieldAttrsHelper, self).unlink()
 
-    @api.model
-    def create(self, values):
-        # CODE BEFORE CREATE: SHOULD USE THE 'values' DICT
-        new_record = super(FieldAttrsHelper, self).create(values)     
-        # CODE AFTER CREATE: CAN USE THE 'new_record' CREATED
-        
-        attr_reg = FahAttrRegistry(self.env, self._name)
-        new_record.sudo()._fah_compute_helper_fields(attr_reg, eval_mode=True)
-        
-        self._check_ops('no_create', new_record, 'CREATE', attr_reg=attr_reg)
-        self._check_fields('create', values, new_record, attr_reg=attr_reg)
+    @api.model_create_multi
+    def create(self, vals_list):
+        new_records = self.env[self._name]
+        # CODE BEFORE CREATE: SHOULD USE THE 'vals_list'
+        for values in vals_list:
+            new_rec = super(FieldAttrsHelper, self).create(values)     
+            # CODE AFTER CREATE: CAN USE THE 'new_record' CREATED
+            
+            attr_reg = FahAttrRegistry(self.env, self._name)
+            new_rec.sudo()._fah_compute_helper_fields(attr_reg, eval_mode=True)
+            
+            self._check_ops('no_create', new_rec, 'CREATE', attr_reg=attr_reg)
+            self._check_fields('create', values, new_rec, attr_reg=attr_reg)
 
-        return new_record
+            new_records |= new_rec
+
+        return new_records
 
     def write(self, values):
         ## < CODE BEFORE WRITE: CAN USE `self`, WITH THE OLD VALUES > ##
