@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from lxml import etree
 from odoo import api, models
 
@@ -21,7 +20,7 @@ class IrUiView(models.Model):
     We remove the custom decorations in the 'arch_db' field constraint
     so that we dont have to patch the rng file or adapt the logic of
     the _check_xml() constraint.
-    @see https://github.com/Noviat/noviat-apps/tree/15.0/web_tree_decoration_underline
+    @see https://github.com/Noviat/noviat-apps/tree/16.0/web_tree_decoration_underline
     """
     @api.constrains('arch_db')
     def _check_xml(self):

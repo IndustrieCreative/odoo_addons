@@ -4,16 +4,13 @@
     'license': 'AGPL-3',
     'author': 'Walter G. Mantovani',
     'website': 'https://github.com/IndustrieCreative/odoo_addons',
-    'category': 'Technical Settings',
+    'category': 'Technical',
     'depends': ['web'],
     'data': [],
     'installable': True,
     'assets': {
         'web.assets_backend': [
             'web_tree_decoration_custom/static/src/css/list_view.css',
-            'web_tree_decoration_custom/static/src/js/list_renderer.js',
         ],
     }
 }
-
-# @SEE: https://github.com/Noviat/noviat-apps/tree/14.0/web_tree_decoration_underline
