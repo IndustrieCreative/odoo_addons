@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <template>
 
-<!-- Hides the Attachment button and counter in the Chatter Topbar -->
+<!-- Hides the Attachment button and counter in the Chatter Topbar if the
+     attachmentGCMode is not 'o2m'. -->
+
 <t t-name="ChatterTopbar" t-inherit="mail.ChatterTopbar" t-inherit-mode="extension" owl="1">
 
     <!-- Override for 'web_responsive' (OCA) -->
-    <xpath expr="(//button[hasclass('o_ChatterTopbar_buttonToggleAttachments')])[1]" position="attributes">
+    <!-- Pulsante AGGIUNGI ALLEGATI (quando ci sono) -->
+    <xpath expr="(//button[hasclass('o_ChatterTopbar_buttonAddAttachments')])[1]" position="attributes">
         <attribute name="t-if">chatterTopbar.chatter.thread.allAttachments.length === 0 &amp;&amp; chatterTopbar.chatter.thread.attachmentGCMode == 'o2m'</attribute>
     </xpath>
 
+    <!-- Pulsante MOSTRA ALLEGATI PRESENTI (quando non ci sono) -->
     <xpath expr="(//button[hasclass('o_ChatterTopbar_buttonToggleAttachments')])[1]" position="attributes">
         <attribute name="t-if">chatterTopbar.chatter.thread.allAttachments.length > 0 &amp;&amp; chatterTopbar.chatter.thread.attachmentGCMode == 'o2m'</attribute>
     </xpath>
 
     <!-- Override for 'web' (core) -->
-    <xpath expr="(//button[hasclass('o_ChatterTopbar_buttonToggleAttachments')])[2]" position="attributes">
+    <!-- Pulsante AGGIUNGI ALLEGATI (quando ci sono) -->
+    <xpath expr="(//button[hasclass('o_ChatterTopbar_buttonAddAttachments')])[2]" position="attributes">
         <attribute name="t-if">chatterTopbar.chatter.thread.allAttachments.length === 0 &amp;&amp; chatterTopbar.chatter.thread.attachmentGCMode == 'o2m'</attribute>
     </xpath>
 
+    <!-- Pulsante MOSTRA ALLEGATI PRESENTI (quando non ci sono) -->
     <xpath expr="(//button[hasclass('o_ChatterTopbar_buttonToggleAttachments')])[2]" position="attributes">
         <attribute name="t-if">chatterTopbar.chatter.thread.allAttachments.length > 0 &amp;&amp; chatterTopbar.chatter.thread.attachmentGCMode == 'o2m'</attribute>
     </xpath>
