@@ -527,7 +527,7 @@ This module consists of:
 - Abstract model ``web.fieldattrs.helper``.
 - Decorator ``@api.fah_depends``.
 - Class ``FahAttrRegistry``.
-- Extension of method ``odoo.models.Model._fields_view_get()``.
+- Extension of method ``odoo.models.Model._get_view()``.
 - Extension of ``ir.model`` and ``ir.ui.view`` models.
 
 To activate the features available in this module and start using them on a new or
@@ -1416,7 +1416,7 @@ improvement of what I started. Thank you.
 
 - Give possibility in XML views to manually insert ``attrs`` pointing to helper fields.
   This is not possible now because when a module is updated, the views are loaded without
-  going through ``fields_view_get()``. Doing so the helper fields are not injected and the
+  going through ``_get_view()``. Doing so the helper fields are not injected and the
   methods ``postprocess_and_fields()`` and ``postprocess()`` in ``ir.ui.view`` raise a
   ``ValueError``: ``Field XXX does not exist``. The solution is to inject the fields by
   intercepting the ``node`` attribute of the ``postprocess()`` or
@@ -1427,7 +1427,7 @@ improvement of what I started. Thank you.
 - If we decide to give the possibility to inject ``attrs`` by hand we have to transfer the
   injection of the helper fields to ``postprocess()`` or to ``postprocess_and_fields()``
   (on ``ir.ui.view``) because during installation/upgrade of the module the views are
-  validated without using ``fields_view_get()``.
+  validated without using ``_get_view()``.
 
 - If we decide not to give the possibility to manually insert ``attrs``, the option
   ``_FAH_XML_INJECT_ATTRS`` can be removed and only ``_FAH_XML_INJECT`` kept. Currently

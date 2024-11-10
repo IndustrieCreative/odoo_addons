@@ -506,7 +506,7 @@ class FieldAttrsHelper(models.AbstractModel):
         # CODE BEFORE CREATE: SHOULD USE THE 'vals_list'
         for values in vals_list:
             new_rec = super(FieldAttrsHelper, self).create(values)     
-            # CODE AFTER CREATE: CAN USE THE 'new_record' CREATED
+            # CODE AFTER CREATE: CAN USE THE 'new_rec' CREATED
             
             attr_reg = FahAttrRegistry(self.env, self._name)
             new_rec.sudo()._fah_compute_helper_fields(attr_reg, eval_mode=True)

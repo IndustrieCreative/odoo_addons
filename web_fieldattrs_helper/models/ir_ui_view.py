@@ -52,10 +52,10 @@ class View(models.Model):
     #   set to "True" (this is because "attr" obviously has to point to helper fields that
     #   are dynamically injected).
     # THIS IS BECAUSE: When loading/updating the module, the view is checked without going
-    #                  through _fields_view_get(), so odoo would say that it can't find the
+    #                  through _get_view(), so odoo would say that it can't find the
     #                  helper fields..
     # 
-    # ??: At this point it would make sense to transfer all the code of _fields_view_get()
+    # ??: At this point it would make sense to transfer all the code of _get_view()
     #     here.
     # !!: If this is the case, check that the "arch" stored in the DB has not been altered,
     #     as it would no longer be possible to (easily) compare the original and overridden
@@ -63,7 +63,7 @@ class View(models.Model):
     #   
     # @todo: Check that, now that it works, it is not possible to execute it directly in
     #        postprocess_and_fields() (so it should execute less times...?).
-    # @todo: DUPLICATED HELPER FIELDS ON VIEW!! Move the _fields_view_get() part here
+    # @todo: DUPLICATED HELPER FIELDS ON VIEW!! Move the _get_view() part here
     #        (or to postprocess_and_fields()), so that we can inject directly from here,
     #        since these two methods are evidently executed both when updating the form
     #        and when requesting the view.

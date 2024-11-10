@@ -8,7 +8,7 @@ STATIC_VIEW_TYPES = ('search', 'kanban', 'calendar', 'pivot', 'activity')
 
 # Override for the purpose of automatically injecting attrs into XML elements
 # declared as targets.
-# NOTE: We override _fields_view_get() directly on the BaseModel so it is always executed,
+# NOTE: We override _get_view() directly on the BaseModel so it is always executed,
 #       even on models that do not implement the helper. This way, it is always possible
 #       to inject attrs into embedded/inline view fields pointing to comodels that
 #       implement this helper, even if the main model does not implement it.

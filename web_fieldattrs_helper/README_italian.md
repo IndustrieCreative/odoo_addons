@@ -527,7 +527,7 @@ Questo modulo consiste in:
 - Abstract model ``web.fieldattrs.helper``.
 - Decoratore ``@api.fah_depends``.
 - Classe ``FahAttrRegistry``.
-- Estensione del metodo ``odoo.models.Model._fields_view_get()``.
+- Estensione del metodo ``odoo.models.Model._get_view()``.
 - Estensione dei modelli ``ir.model`` e ``ir.ui.view``.
 
 Per attivare le feature disponibli in questo modulo e cominciare ad usarle su un modello
@@ -1448,7 +1448,7 @@ miglioramento di quanto ho iniziato. Grazie.
 
 - Dare la possibilità nelle view XML di inserire a mano degli ``attrs`` che puntino ai campi
   helper. Ora non è possibile perché quando il modulo viene aggiornato, le view vengono
-  caricate senza passare per ``fields_view_get()``. Così facendo non vengono iniettati i 
+  caricate senza passare per ``_get_view()``. Così facendo non vengono iniettati i 
   campi helper e i metodi ``postprocess_and_fields()`` e ``postprocess()`` in ``ir.ui.view``
   sollevano un ``ValueError``: ``Field XXX does not exist``.
   La soluzione è quella di iniettare i campi intercettando l'attriibuto ``node`` del metodo
@@ -1460,7 +1460,7 @@ miglioramento di quanto ho iniziato. Grazie.
 - Se si decide di dare la possibilità di inserire a mano gli ``attrs`` bisogna trasferire
   l'iniezione dei campi helper in ``postprocess()`` o in ``postprocess_and_fields()``
   (su ``ir.ui.view``) perché durante l'installazione/upgrade del modulo le viste vengono
-  validate senza usare ``fields_view_get()``.
+  validate senza usare ``_get_view()``.
 
 - Controllare che il tag sia usato da qualche elemento durante FahAttrRegistry.set().
   Non sarebbe possibile se lasciamo possibilità di inserire gli ``attrs`` a mano, in quanto
