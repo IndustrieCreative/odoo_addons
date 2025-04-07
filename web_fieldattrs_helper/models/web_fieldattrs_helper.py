@@ -697,6 +697,10 @@ class FieldAttrsHelper(models.AbstractModel):
 
     def _check_null_required_field(self, record, field_name, custom_err_msg, tag=False):
         all_right = False
+        # @TODO: FIX dotted field names... read type from comodel ?
+        print('>>>>>> @FIX THIS >>>>>>>>')
+        print(field_name)
+        
         field_type = self._fields.get(field_name).type
         if field_type == 'boolean':
             return
