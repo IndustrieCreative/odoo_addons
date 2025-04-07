@@ -477,20 +477,21 @@ class FieldAttrsHelper(models.AbstractModel):
     # Check that ATTRS and OPS are complied with.
     
     @api.model
-    def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
+    def _search(self, args, offset=0, limit=None, order=None, access_rights_uid=None):
         ids = super(FieldAttrsHelper, self)._search(args, offset=offset, limit=limit, order=order,
-                                                count=False, access_rights_uid=access_rights_uid)
+                                                    access_rights_uid=access_rights_uid)
         if self.env.is_superuser():
             # Rules do not apply in superuser mode
-            return len(ids) if count else ids
+            return super(FieldAttrsHelper, self.sudo())._search([('id', 'in', ids)], order=order)
         
         if not ids:
-            return 0 if count else []
+            return self.browse([])._as_query(order)
 
         denied_ids = self._check_ops('no_read', self.browse(ids), 'READ', eval_mode=True)
         allowed_ids = [r_id for r_id in ids if r_id not in denied_ids] if denied_ids else ids
 
-        return len(allowed_ids) if count else allowed_ids
+        return self.browse(allowed_ids)._as_query(order)
+    
 
     def read(self, fields=None, load='_classic_read'):
         self._check_ops('no_read', self, 'READ')
