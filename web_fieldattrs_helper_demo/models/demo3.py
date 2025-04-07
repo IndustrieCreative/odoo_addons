@@ -9,7 +9,7 @@ class DemoModel3(models.Model):
 
     name = fields.Char(
         string='Name',
-        # required = lambda self: self.browse(self._context.get('active_id')).trigger_field_1
+        # required = lambda self: self.browse(self._context.get('id')).trigger_field_1
     )
 
     target3_field_char = fields.Char(string = 'Char')
