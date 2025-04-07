@@ -1,6 +1,6 @@
 {
     'name': 'Web Tree No Open',
-    'version': '16.0.1.0.0',
+    'version': '17.0.1.0.0',
     'author': 'Walter G. Mantovani',
     'website': 'https://github.com/IndustrieCreative/odoo_addons',
     'license': 'AGPL-3',
