@@ -4,7 +4,7 @@
 <!-- Hides the Attachment button and counter in the Chatter Topbar if the
      attachmentGCMode is not 'o2m'. -->
 
-<t t-name="ChatterTopbar" t-inherit="mail.ChatterTopbar" t-inherit-mode="extension" owl="1">
+<t t-name="ChatterTopbar" t-inherit="mail.ChatterTopbar" t-inherit-mode="extension">
 
     <!-- Override for 'web_responsive' (OCA) -->
     <!-- Pulsante AGGIUNGI ALLEGATI (quando ci sono) -->
