@@ -70,9 +70,9 @@
                 date_stop="target2_field_stop_datetime"
                 mode="month"
                 color="trigger2_readonly_field_selection"
-                quick_add="0"
                 event_open_popup="False"
                 all_day="target2_field_allday_boolean">
+                <!-- quick_add="0" -->
         <field name="name"/>
         <field name="target2_field_char"/>
         <field name="target2_field_selection"/>
