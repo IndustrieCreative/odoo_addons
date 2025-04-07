@@ -22,7 +22,7 @@
                             name="action_remove_constraint"
                             class="btn-primary"
                             confirm="Are you sure you want to remove this constraint?"
-                            attrs="{'invisible': [('constraint_key_to_remove', '=', False)]}"/>
+                            invisible="not constraint_key_to_remove"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>

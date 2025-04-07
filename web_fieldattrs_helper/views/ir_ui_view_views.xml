@@ -21,7 +21,7 @@
     <field name="arch" type="xml">
       
       <xpath expr="//notebook[1]" position="before">
-        <div attrs="{'invisible': [('fah_implemented', '=', False)]}" class="fah-blink"
+        <div invisible="not fah_implemented" class="fah-blink"
              style="display: flex; float: right; align-items: center;">
           <img src="/web_fieldattrs_helper/static/description/icon.png" alt="Icon" style="width: 37px;"/>
           <div>FAH is active!</div>
@@ -31,7 +31,7 @@
 
       <xpath expr="//notebook[1]" position="inside">
         <page string="Field Attrs Helper (FAH)" groups="base.group_no_one"
-              attrs="{'invisible': [('fah_implemented', '=', False)]}">
+              invisible="not fah_implemented">
           <notebook>
             <page string="View" groups="base.group_no_one">
               <separator string="Overridden view (including inherited views)"/>

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from lxml import etree
 from odoo import api, models
 from odoo.exceptions import UserError
@@ -6,8 +5,9 @@ from . web_fieldattrs_helper import FieldAttrsHelper
 
 STATIC_VIEW_TYPES = ('search', 'kanban', 'calendar', 'pivot', 'activity')
 
-# Override for the purpose of automatically injecting attrs into XML elements
-# declared as targets.
+# Override for the purpose of automatically injecting 'invisible', 'readonly',
+# 'required', 'column_invisible' attributes into the XML elements declared as
+# targets.
 # NOTE: We override _get_view() directly on the BaseModel so it is always executed,
 #       even on models that do not implement the helper. This way, it is always possible
 #       to inject attrs into embedded/inline view fields pointing to comodels that
@@ -15,7 +15,7 @@ STATIC_VIEW_TYPES = ('search', 'kanban', 'calendar', 'pivot', 'activity')
 class Base(models.AbstractModel):
     _inherit = 'base'
 
-    # Injects helper fields and "attrs" into the views.
+    # Injects helper fields and the attributes into the views.
     @api.model
     def _get_view(self, view_id=None, view_type="form", **options):
         arch, view = super()._get_view(view_id=view_id, view_type=view_type, **options)
@@ -26,7 +26,7 @@ class Base(models.AbstractModel):
         # HELPER FIELDS
         #---------------------------------------------------------
         
-        # NOTE: First we inject the helper fields and then the attrs.
+        # NOTE: First we inject the helper fields and then the attributes.
         #     I'm repeating all the "view_type" conditions because, for now,
         #     I prefer to keep field-injections separate from attrs-injections.
 
@@ -55,7 +55,7 @@ class Base(models.AbstractModel):
                             # ATTRS
                             for hf_name in self._FAH_ATTRS_FIELDS:
                                 xml_field = etree.Element('field', {
-                                    'name': hf_name, 
+                                    'name': hf_name,
                                     'invisible': '0',
                                     'readonly': '0',
                                 })
@@ -64,7 +64,7 @@ class Base(models.AbstractModel):
                             if self._FAH_CREATE_OPS_FIELDS:
                                 for hf_name in [*self._FAH_OPS_FIELDS, *self._FAH_OPS_MSG_FIELDS]:
                                     xml_field = etree.Element('field', {
-                                        'name': hf_name, 
+                                        'name': hf_name,
                                         'invisible': '0',
                                         'readonly': '0',
                                     })
@@ -78,7 +78,7 @@ class Base(models.AbstractModel):
                             }))
                             # BYPASS
                             xml_group.append(etree.Element('field', {
-                                'name': self._FAH_BYPASS_FIELD, 
+                                'name': self._FAH_BYPASS_FIELD,
                                 'groups': ','.join(self._FAH_BYPASS_GROUPS_ALL),
                             }))
                             main_node.append(xml_group)
@@ -149,19 +149,21 @@ class Base(models.AbstractModel):
                             continue
                         for chf_name in comodel._FAH_ATTRS_FIELDS:
                             embed_node.append(etree.Element('field', {
-                                'name': chf_name, 
+                                'name': chf_name,
                                 'invisible': '0' if comodel._FAH_DEBUG_MODE else '1',
                                 'readonly': '0' if comodel._FAH_DEBUG_MODE else '1',
                             }))
-                            # STARTER TRIGGERS
-                            embed_node.append(etree.Element('field', {
-                                'name': comodel._FAH_STARTER_FIELD,
-                                'invisible': '1',
-                            }))
-                            embed_node.append(etree.Element('field', {
-                                'name': comodel._FAH_FIRST_TRIGGER_FIELD,
-                                'invisible': '1',
-                            }))
+                        # STARTER TRIGGERS
+                        # @BUG: In the original these two lines were inside the
+                        #       for loop, but they should be outside.
+                        embed_node.append(etree.Element('field', {
+                            'name': comodel._FAH_STARTER_FIELD,
+                            'invisible': '1',
+                        }))
+                        embed_node.append(etree.Element('field', {
+                            'name': comodel._FAH_FIRST_TRIGGER_FIELD,
+                            'invisible': '1',
+                        }))
                         if embed_node.tag == 'form':
                             xml_div = etree.Element('div', {
                                 'class': '',
@@ -181,7 +183,7 @@ class Base(models.AbstractModel):
                     for tree_node in arch.xpath("//tree"):
                         for hf_name in self._FAH_ATTRS_FIELDS:
                             tree_node.append(etree.Element('field', {
-                                'name': hf_name, 
+                                'name': hf_name,
                                 'invisible': '0' if self._FAH_DEBUG_MODE else '1',
                                 'readonly': '0' if self._FAH_DEBUG_MODE else '1',
                             }))
@@ -195,7 +197,7 @@ class Base(models.AbstractModel):
                     'View type not yet supported: %s' % view_type))
 
         #---------------------------------------------------------
-        # ATTRS FIELDS / NODES
+        # ATTRTIBUTES OF FIELDS / NODES
         #---------------------------------------------------------
 
         # @todo: ?? look at transfer_node_to_modifiers() @ orm.py (core)
@@ -204,7 +206,7 @@ class Base(models.AbstractModel):
 
         if isinstance(self, FieldAttrsHelper):
             target_fields = self._FAH_FIELD_REGISTRY['model_target_fields']
-            target_nodes = self._FAH_FIELD_REGISTRY['model_target_nodes'] # dict node:tag
+            target_nodes = self._FAH_FIELD_REGISTRY['model_target_nodes']  # dict node:tag
 
         if view_type == 'form':
             # - - - - - - -
@@ -212,17 +214,20 @@ class Base(models.AbstractModel):
             if isinstance(self, FieldAttrsHelper):
                 # Set attrs for all fields not inside embedded/inline views
                 if self._FAH_XML_INJECT and self._FAH_XML_INJECT_ATTRS and 'form' in self._FAH_VIEWS:
-                    for tf_name, tags in target_fields.items():            
+                    for tf_name, tags in target_fields.items():
                         for field_node in arch.xpath("//field[@name='%s' and not (ancestor::field)]" % tf_name):
                             tags_dict = {'model': tags}
-                            self._fah_set_field_attrs(self, field_node, 'name', tf_name, current_view_id, tags=tags_dict)
-                        
+                            self._fah_set_field_attrs(
+                                self, field_node, 'name', tf_name, current_view_id, tags=tags_dict
+                            )
                     for tn_def, tags in target_nodes.items():
                         tag_id, attr_id, attr_val_id = tn_def
                         for elem_node in arch.xpath("//%s[@%s='%s' and not (ancestor::field)]" % (tag_id, attr_id, attr_val_id)):
                         # for elem_node in doc.xpath("//%s[@%s='%s' and not (parent::tree or parent::graph or parent::kanban or parent::calendar)]" % (tag_id, attr_id, attr_val_id)):
                             tags_dict = {'model': tags}
-                            self._fah_set_field_attrs(self, elem_node, attr_id, False, current_view_id, tags=tags_dict)
+                            self._fah_set_field_attrs(
+                                self, elem_node, attr_id, False, current_view_id, tags=tags_dict
+                            )
 
             # - - - - - - -
             # EMBEDDED O2M / M2M FIELDS
@@ -241,11 +246,15 @@ class Base(models.AbstractModel):
                         # ______
                         # FIELDS
                         comodel_target_fields = comodel._FAH_FIELD_REGISTRY['model_target_fields']
-                        for ctf_name, tags in comodel_target_fields.items():            
+                        for ctf_name, tags in comodel_target_fields.items():
                             tags_dict = {'comodel': tags}
                             for field_node in form_node.xpath(".//field[@name='%s']" % ctf_name):
                                 if self._get_embedding_model_and_field(view_id, field_node)[3] == level:
-                                    self._fah_set_field_attrs(comodel, field_node, 'name', ctf_name, current_view_id, parent_model=model, rel_field_name=rel_field_name, attrs_mode='comodel_only', tags=tags_dict)
+                                    self._fah_set_field_attrs(
+                                        comodel, field_node, 'name', ctf_name, current_view_id,
+                                        parent_model=model, rel_field_name=rel_field_name,
+                                        attrs_mode='comodel_only', tags=tags_dict
+                                    )
                         # ___________
                         # OTHER NODES
                         comodel_target_nodes = comodel._FAH_FIELD_REGISTRY['model_target_nodes']
@@ -254,7 +263,12 @@ class Base(models.AbstractModel):
                             tag_id, attr_id, attr_val_id = ctn_def
                             for elem_node in form_node.xpath(".//%s[@%s='%s']" % (tag_id, attr_id, attr_val_id)):
                                 if self._get_embedding_model_and_field(view_id, elem_node)[3] == level:
-                                    self._fah_set_field_attrs(comodel, field_node, attr_id, False, current_view_id, parent_model=model, rel_field_name=rel_field_name, attrs_mode='comodel_only', tags=tags_dict)
+                                    # @BUG in original: was `field_node` instead of `elem_node` in param
+                                    self._fah_set_field_attrs(
+                                        comodel, elem_node, attr_id, False, current_view_id,
+                                        parent_model=model, rel_field_name=rel_field_name,
+                                        attrs_mode='comodel_only', tags=tags_dict
+                                    )
 
             # Embedded Trees
             for tree_node in arch.xpath("//tree[(ancestor::field)]"):
@@ -293,24 +307,36 @@ class Base(models.AbstractModel):
                 for ctf_name in common_target_fields_keys:
                     rel_embedded_field_tags = rel_embedded_target_fields.get(ctf_name, False)
                     comodel_field_tags = comodel_target_fields.get(ctf_name, False)
-                    tags_dict = {'model': rel_embedded_field_tags, 'comodel':comodel_field_tags}
+                    tags_dict = {'model': rel_embedded_field_tags, 'comodel': comodel_field_tags}
                     for field_node in tree_node.xpath(".//field[@name='%s']" % ctf_name):
                         if self._get_embedding_model_and_field(view_id, field_node)[3] == level:
-                            self._fah_set_field_attrs(comodel, field_node, 'name', ctf_name, current_view_id, parent_model=model, rel_field_name=rel_field_name, attrs_mode='common', tags=tags_dict)
+                            self._fah_set_field_attrs(
+                                comodel, field_node, 'name', ctf_name, current_view_id,
+                                parent_model=model, rel_field_name=rel_field_name,
+                                attrs_mode='common', tags=tags_dict
+                            )
                 for ctf_name in comodel_only_target_fields_keys:
                     rel_embedded_field_tags = rel_embedded_target_fields.get(ctf_name, False)
                     comodel_field_tags = comodel_target_fields.get(ctf_name, False)
-                    tags_dict = {'model': rel_embedded_field_tags, 'comodel':comodel_field_tags}
+                    tags_dict = {'model': rel_embedded_field_tags, 'comodel': comodel_field_tags}
                     for field_node in tree_node.xpath(".//field[@name='%s']" % ctf_name):
                         if self._get_embedding_model_and_field(view_id, field_node)[3] == level:
-                            self._fah_set_field_attrs(comodel, field_node, 'name', ctf_name, current_view_id, parent_model=model, rel_field_name=rel_field_name, attrs_mode='comodel_only', tags=tags_dict)
+                            self._fah_set_field_attrs(
+                                comodel, field_node, 'name', ctf_name, current_view_id,
+                                parent_model=model, rel_field_name=rel_field_name,
+                                attrs_mode='comodel_only', tags=tags_dict
+                            )
                 for ctf_name in rel_only_target_fields_keys:
                     rel_embedded_field_tags = rel_embedded_target_fields.get(ctf_name, False)
                     comodel_field_tags = comodel_target_fields.get(ctf_name, False)
-                    tags_dict = {'model': rel_embedded_field_tags, 'comodel':comodel_field_tags}
+                    tags_dict = {'model': rel_embedded_field_tags, 'comodel': comodel_field_tags}
                     for field_node in tree_node.xpath(".//field[@name='%s']" % ctf_name):
                         if self._get_embedding_model_and_field(view_id, field_node)[3] == level:
-                            self._fah_set_field_attrs(comodel, field_node, 'name', ctf_name, current_view_id, parent_model=model, rel_field_name=rel_field_name, attrs_mode='rel_only', tags=tags_dict)
+                            self._fah_set_field_attrs(
+                                comodel, field_node, 'name', ctf_name, current_view_id,
+                                parent_model=model, rel_field_name=rel_field_name,
+                                attrs_mode='rel_only', tags=tags_dict
+                            )
 
                 # ___________
                 # OTHER NODES
@@ -322,15 +348,15 @@ class Base(models.AbstractModel):
                 embedded_target_nodes = dict()
                 if isinstance(model, FieldAttrsHelper):
                     if model._FAH_XML_INJECT and model._FAH_XML_INJECT_ATTRS:
-                        embedded_target_nodes = model._FAH_FIELD_REGISTRY['embedded_target_nodes'] # dict of dict rel_field:node:tag
-                rel_embedded_target_nodes = embedded_target_nodes.get(rel_field_name, dict()) # dict node:tag
+                        embedded_target_nodes = model._FAH_FIELD_REGISTRY['embedded_target_nodes']  # dict of dict rel_field:node:tag
+                rel_embedded_target_nodes = embedded_target_nodes.get(rel_field_name, dict())  # dict node:tag
                 
                 # Gets the dict with the model_target_fields of the comodel
                 # (those that are driven by the comodel)
                 comodel_target_nodes = dict()
                 if isinstance(comodel, FieldAttrsHelper):
                     if comodel._FAH_XML_INJECT and comodel._FAH_XML_INJECT_ATTRS:
-                        comodel_target_nodes = comodel._FAH_FIELD_REGISTRY['model_target_nodes'] # dict node:tag
+                        comodel_target_nodes = comodel._FAH_FIELD_REGISTRY['model_target_nodes']  # dict node:tag
                 
                 # Turns the dict keys into a set
                 comodel_target_nodes_keys = set(comodel_target_nodes.keys())
@@ -346,42 +372,55 @@ class Base(models.AbstractModel):
                     tag_id, attr_id, attr_val_id = ctn_def
                     rel_embedded_node_tags = rel_embedded_target_nodes.get(ctn_def, False)
                     comodel_node_tags = comodel_target_nodes.get(ctn_def, False)
-                    tags_dict = {'model': rel_embedded_node_tags, 'comodel':comodel_node_tags}
+                    tags_dict = {'model': rel_embedded_node_tags, 'comodel': comodel_node_tags}
                     for elem_node in tree_node.xpath(".//%s[@%s='%s']" % (tag_id, attr_id, attr_val_id)):
                         if self._get_embedding_model_and_field(view_id, elem_node)[3] == level:
-                            self._fah_set_field_attrs(comodel, elem_node, attr_id, False, current_view_id, parent_model=model, rel_field_name=rel_field_name, attrs_mode='common', tags=tags_dict)
+                            self._fah_set_field_attrs(
+                                comodel, elem_node, attr_id, False, current_view_id,
+                                parent_model=model, rel_field_name=rel_field_name,
+                                attrs_mode='common', tags=tags_dict
+                            )
                 for ctn_def in comodel_only_target_nodes_keys:
                     tag_id, attr_id, attr_val_id = ctn_def
                     rel_embedded_node_tags = rel_embedded_target_nodes.get(ctn_def, False)
                     comodel_node_tags = comodel_target_nodes.get(ctn_def, False)
-                    tags_dict = {'model': rel_embedded_node_tags, 'comodel':comodel_node_tags}
+                    tags_dict = {'model': rel_embedded_node_tags, 'comodel': comodel_node_tags}
                     for elem_node in tree_node.xpath(".//%s[@%s='%s']" % (tag_id, attr_id, attr_val_id)):
                         if self._get_embedding_model_and_field(view_id, elem_node)[3] == level:
-                            self._fah_set_field_attrs(comodel, elem_node, attr_id, False, current_view_id, parent_model=model, rel_field_name=rel_field_name, attrs_mode='comodel_only', tags=tags_dict)
+                            self._fah_set_field_attrs(
+                                comodel, elem_node, attr_id, False, current_view_id,
+                                parent_model=model, rel_field_name=rel_field_name,
+                                attrs_mode='comodel_only', tags=tags_dict
+                            )
                 for ctn_def in rel_only_target_nodes_keys:
                     tag_id, attr_id, attr_val_id = ctn_def
                     rel_embedded_node_tags = rel_embedded_target_nodes.get(ctn_def, False)
                     comodel_node_tags = comodel_target_nodes.get(ctn_def, False)
-                    tags_dict = {'model': rel_embedded_node_tags, 'comodel':comodel_node_tags}
+                    tags_dict = {'model': rel_embedded_node_tags, 'comodel': comodel_node_tags}
                     for elem_node in tree_node.xpath(".//%s[@%s='%s']" % (tag_id, attr_id, attr_val_id)):
                         if self._get_embedding_model_and_field(view_id, elem_node)[3] == level:
-                            self._fah_set_field_attrs(comodel, elem_node, attr_id, False, current_view_id, parent_model=model, rel_field_name=rel_field_name, attrs_mode='rel_only', tags=tags_dict)
-        
+                            self._fah_set_field_attrs(
+                                comodel, elem_node, attr_id, False, current_view_id,
+                                parent_model=model, rel_field_name=rel_field_name,
+                                attrs_mode='rel_only', tags=tags_dict
+                            )
+
         elif view_type == 'tree':
             if isinstance(self, FieldAttrsHelper):
                 if self._FAH_XML_INJECT and self._FAH_XML_INJECT_ATTRS and 'tree' in self._FAH_VIEWS:
-                    for tf_name, tags in target_fields.items():            
+                    for tf_name, tags in target_fields.items():
                         for field_node in arch.xpath("//field[@name='%s']" % tf_name):
                             tags_dict = {'model': tags}
-                            self. _fah_set_field_attrs(self, field_node, 'name', tf_name, current_view_id, tags=tags_dict)
-
+                            self._fah_set_field_attrs(
+                                self, field_node, 'name', tf_name, current_view_id, tags=tags_dict
+                            )
                     for tn_def, tags in target_nodes.items():
                         tag_id, attr_id, attr_val_id = tn_def
                         for elem_node in arch.xpath("//%s[@%s='%s']" % (tag_id, attr_id, attr_val_id)):
                             tags_dict = {'model': tags}
-                            self._fah_set_field_attrs(self, elem_node, attr_id, False, current_view_id, tags=tags_dict)
-
-        # Skip static views that do not seem to require any special attention.
+                            self._fah_set_field_attrs(
+                                self, elem_node, attr_id, False, current_view_id, tags=tags_dict
+                            )
         elif view_type in STATIC_VIEW_TYPES:
             pass
         else:
@@ -413,7 +452,7 @@ class Base(models.AbstractModel):
                         models_chain.append(models_chain[counter][rel_field])
                     else:
                         message = f'''Field [ {rel_field} ] does not exist on model [ {models_chain[counter]._name} ].'''
-                        self.env['ir.ui.view']._raise_view_error(message, node=embedded_arch_node) #, view_id)
+                        self.env['ir.ui.view']._raise_view_error(message, node=embedded_arch_node)  #, view_id)
                     counter += 1
                 return (models_chain[-2], ancestor_fields[0], models_chain[-1], len(ancestor_fields))
             else:
@@ -443,8 +482,7 @@ class Base(models.AbstractModel):
                     NOTE: This only applies to target fields.'''
             ))
         else:
-            attrs_list = []
-            dict_attrs_string = '{ '
+            full_attrs_dict = {}
             
             # If it is not an embedded field/node
             if parent_model == False:
@@ -454,14 +492,13 @@ class Base(models.AbstractModel):
                 if node.tag == 'field':
                     for attr, helper_field_name in model._FAH_ATTRS_TUPLES:
                         if attr != 'column_invisible':
-                            field_operand = f"('{helper_field_name}', 'like', '{delimiter}{tigger_str}{delimiter}')"
+                            field_operand = f"('{delimiter}{tigger_str}{delimiter}' in {helper_field_name})"
                             attr_operands_list = [field_operand]
                             for tag in tags['model']:
-                                attr_operands_list.append(f"('{helper_field_name}', 'like', '{tag}')")
+                                attr_operands_list.append(f"('{tag}' in {helper_field_name})")
 
-                            full_domain_list = self._fah_compose_domain_or(attr_operands_list)
-                            key_attr_string = f"'{attr}': [{','.join(full_domain_list)}]"
-                            attrs_list.append(key_attr_string)
+                            attr_string = ' or '.join(attr_operands_list)
+                            full_attrs_dict[attr] = attr_string
 
 
                      
@@ -486,11 +523,10 @@ class Base(models.AbstractModel):
                         if attr == 'invisible':
                             attr_operands_list = []
                             for tag in tags['model']:
-                                attr_operands_list.append(f"('{helper_field_name}', 'like', '{tag}')")
+                                attr_operands_list.append(f"('{tag}' in {helper_field_name})")
 
-                            full_domain_list = self._fah_compose_domain_or(attr_operands_list)
-                            key_attr_string = f"'{attr}': [{','.join(full_domain_list)}]"
-                            attrs_list.append(key_attr_string)
+                            attr_string = ' or '.join(attr_operands_list)
+                            full_attrs_dict[attr] = attr_string
 
             # If it is an embedded field/node
             else:
@@ -501,31 +537,30 @@ class Base(models.AbstractModel):
                         delimiter = parent_model._FAH_ATTRS_FIELDS_DELIMITER
                         # Compile the domain to the helper field of the parent form
                         for attr, helper_field_name in parent_model._FAH_ATTRS_TUPLES:
-                            field_operand = f"('parent.{helper_field_name}', 'like', '{delimiter}{rel_field_name}.{tigger_str}{delimiter}')"
+                            field_operand = f"('{delimiter}{rel_field_name}.{tigger_str}{delimiter}' in parent.{helper_field_name})"
                             if not attrs_dict.get(attr, False):
                                 attrs_dict[attr] = list()
                             attrs_dict[attr].append(field_operand)
                             for tag in tags['model']:
-                                 attrs_dict[attr].append(f"('parent.{helper_field_name}', 'like', '{tag}')")
+                                 attrs_dict[attr].append(f"('{tag}' in parent.{helper_field_name})")
 
                     if attrs_mode in ['common', 'comodel_only']:
                         delimiter = model._FAH_ATTRS_FIELDS_DELIMITER
                         # Compile the domain to the helper field of its embedded tree
                         for attr, helper_field_name in model._FAH_ATTRS_TUPLES:
                             if attr != 'column_invisible':
-                                field_operand = f"('{helper_field_name}', 'like', '{delimiter}{tigger_str}{delimiter}')"
+                                field_operand = f"('{delimiter}{tigger_str}{delimiter}' in {helper_field_name})"
                                 if not attrs_dict.get(attr, False):
                                     attrs_dict[attr] = list()
                                 attrs_dict[attr].append(field_operand)
                                 for tag in tags['comodel']:
-                                    attrs_dict[attr].append(f"('{helper_field_name}', 'like', '{tag}')")
+                                    attrs_dict[attr].append(f"('{tag}' in {helper_field_name})")
 
 
                     # Compiles the string for the attribute
                     for attr, attr_operands_list in attrs_dict.items():
-                        full_domain_list = self._fah_compose_domain_or(attr_operands_list)
-                        key_attr_string = f"'{attr}': [{','.join(full_domain_list)}]"
-                        attrs_list.append(key_attr_string)
+                        attr_string = ' or '.join(attr_operands_list)
+                        full_attrs_dict[attr] = attr_string
                 
                     # NOTE: All embedded targets have force_save="1", as as above, but...
                     # WARNING: As above:
@@ -550,7 +585,7 @@ class Base(models.AbstractModel):
                             if attr in ['invisible', 'column_invisible']:
                                 attrs_dict[attr] = []
                                 for tag in tags['model']:
-                                    attrs_dict[attr].append(f"('parent.{helper_field_name}', 'like', '{tag}')")
+                                    attrs_dict[attr].append(f"('{tag}' in parent.{helper_field_name})")
                     
                     if attrs_mode in ['common', 'comodel_only']:
                         # Compile the domain to the helper field of its embedded tree
@@ -559,52 +594,15 @@ class Base(models.AbstractModel):
                                 if not attrs_dict.get(attr, False):
                                     attrs_dict[attr] = []
                                 for tag in tags['comodel']:
-                                    attrs_dict[attr].append(f"('{helper_field_name}', 'like', '{tag}')")
+                                    attrs_dict[attr].append(f"('{tag}' in {helper_field_name})")
 
                     # Compiles the string for the attribute
                     for attr, attr_operands_list in attrs_dict.items():
-                        full_domain_list = self._fah_compose_domain_or(attr_operands_list)
-                        key_attr_string = f"'{attr}': [{','.join(full_domain_list)}]"
-                        attrs_list.append(key_attr_string)
+                        attr_string = ' or '.join(attr_operands_list)
+                        full_attrs_dict[attr] = attr_string
 
             # Finally, write all the attrs
-            dict_attrs_string += ', '.join(attrs_list) + ' }'
-            node.set('attrs', dict_attrs_string)
+            for attr, attr_string in full_attrs_dict.items():
+                node.set(attr, attr_string)
 
         return node
-
-    # @todo: ! For this method a test must be written with the highest priority !
-    #        (I'm not sure if the method of adding an additional '|' at the
-    #        beginning, for each pair, is always correct!)
-    def _fah_compose_domain_or(self, attr_operands_list):
-        """ Compose a full domain in list format.
-        :param list attr_operands_list:  List of strings containing a single operand domain tuple;
-        :return:  List of strings containing the single operands domain tuples, coupled by "OR"
-                  operator (polish notation)
-        """
-
-        # If the list contains more than one element
-        if len(attr_operands_list) > 1:
-            # Create a list containing the sequence of operators and operands (Polish notation)
-            full_domain_list = list()
-            operands_qty = len(attr_operands_list) # ex. 7
-            couples = operands_qty // 2 # ex. 3
-            odd_list = operands_qty % 2 # ex. 1
-            # If the tags are odd, there should be a condition ALONE, at the beginning
-            if odd_list:
-                full_domain_list.extend(("'|'", attr_operands_list[-1]))
-            current_couple = 1
-            while current_couple <= couples:
-                operand1 = attr_operands_list[(current_couple*2)-2]
-                operand2 = attr_operands_list[(current_couple*2)-1]
-                full_domain_list.extend(("'|'", operand1, operand2))
-                current_couple +=1
-            # It adds (or) operators as much as it needs ;)
-            # @todo: check that it is ALWAYS right, for the moment it seems to work...
-            for c in range(couples - 1):
-                full_domain_list.insert(0, "'|'")
-            return full_domain_list
-        else:
-            return attr_operands_list
-
-        return full_domain_list
