@@ -2,7 +2,7 @@
 # Copyright (C) 2016 Ciro Urselli (<http://www.apuliasoftware.it>).
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class AtecoCategory(models.Model):
@@ -24,11 +24,10 @@ class AtecoCategory(models.Model):
         string="Partners",
     )
 
-    def name_get(self):
-        res = []
+    @api.depends('code', 'name')
+    def _compute_display_name(self):
         for record in self:
-            name = record.name
             if record.code:
-                name = record.code + " - " + name
-            res.append((record.id, name))
-        return res
+                record.display_name = f"{record.code} - {record.name}"
+            else:
+                record.display_name = record.name
