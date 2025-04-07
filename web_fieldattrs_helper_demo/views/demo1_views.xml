@@ -49,14 +49,16 @@
           </group>
 
           <group string="GROUP Visibility by #FOO# TAG (trigger by field)" name="group-target-1" class="asc_label_nowrap">
-            <div id="div-visibility-test">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+            <div colspan="2" id="div-visibility-test">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
           </group>
 
           <group string="BUTTON Visibility by #FOO# TAG (trigger by field)" name="button" class="asc_label_nowrap">
-            <button name="action_demo"
-                    string="Action Demo 1"
-                    type="object"
-                    class="btn-primary"/> <!-- oe_read_only -->
+            <div colspan="2">
+              <button name="action_demo"
+                      string="Action Demo 1"
+                      type="object"
+                      class="btn-primary"/> <!-- oe_read_only -->
+            </div>
           </group>
 
           <group string="DIV Visibility by TAG #USER MESSAGE# #ADMIN MESSAGE# (trigger by user groups)" name="tag-visibility" class="asc_label_nowrap">
