@@ -62,13 +62,13 @@ class DemoModel1(models.Model):
     # O2M DEMO 2 EMBEDDEDS
     # - - - - - -
     # Field
-    trigger1_readonly_o2m_field_demo2 = fields.Boolean(string='RO FIELD Many2many Demo 3')
-    trigger1_required_o2m_field_demo2 = fields.Boolean(string='REQ FIELD Many2many Demo 3')
-    trigger1_invisible_o2m_field_demo2 = fields.Boolean(string='INV Many2many FIELD Demo 3')
+    trigger1_readonly_o2m_field_demo2 = fields.Boolean(string='RO FIELD Many2many Demo 2')
+    trigger1_required_o2m_field_demo2 = fields.Boolean(string='REQ FIELD Many2many Demo 2')
+    trigger1_invisible_o2m_field_demo2 = fields.Boolean(string='INV Many2many FIELD Demo 2')
     trigger1_column_invisible_o2m_field_demo2 = fields.Boolean(string='COL_INV One2many Demo 2')
     # Button
-    trigger1_invisible_o2m_button_demo2 = fields.Boolean(string='INV Many2many BUTTON Demo 3')
-    trigger1_column_invisible_o2m_button_demo2 = fields.Boolean(string='COL_INV Button Many2many Demo 3')
+    trigger1_invisible_o2m_button_demo2 = fields.Boolean(string='INV Many2many BUTTON Demo 2')
+    trigger1_column_invisible_o2m_button_demo2 = fields.Boolean(string='COL_INV Button Many2many Demo 2')
 
     # OTHER EMBEDDEDS
     trigger1_column_invisible_o2m_field_demo3 = fields.Boolean(string='COL_INV One2many Demo 3')

@@ -14,7 +14,7 @@ class DemoModel2(models.Model):
 
     name = fields.Char(
         string='Name',
-        # required = lambda self: self.browse(self._context.get('active_id')).trigger_field_1
+        # required = lambda self: self.browse(self._context.get('id')).trigger_field_1
     )
 
     trigger2_readonly_field_char = fields.Boolean(string='RO Char')
@@ -85,26 +85,26 @@ class DemoModel2(models.Model):
     target2_field_allday_boolean = fields.Boolean(string='Calendar Allday')
 
     _fah_trigger_fields = {
-		'trigger2_readonly_field_char',
-		'trigger2_readonly_field_selection',
-		'trigger2_readonly_field_m2o_demo1',
-		'trigger2_readonly_field_o2m_demo1',
-		'trigger2_readonly_field_m2m_demo1',
-		
-		'trigger2_required_field_char',
-		'trigger2_required_field_selection',
-		'trigger2_required_field_m2o_demo1',
-		'trigger2_required_field_o2m_demo1',
-		'trigger2_required_field_o2m_demo1',
-		
-		'trigger2_invisible_field_char',
-		'trigger2_invisible_field_selection',
-		'trigger2_invisible_field_m2o_demo1',
-		'trigger2_invisible_field_o2m_demo1',
-		'trigger2_invisible_field_m2m_demo1',
+        'trigger2_readonly_field_char',
+        'trigger2_readonly_field_selection',
+        'trigger2_readonly_field_m2o_demo1',
+        'trigger2_readonly_field_o2m_demo1',
+        'trigger2_readonly_field_m2m_demo1',
+        
+        'trigger2_required_field_char',
+        'trigger2_required_field_selection',
+        'trigger2_required_field_m2o_demo1',
+        'trigger2_required_field_o2m_demo1',
+        'trigger2_required_field_o2m_demo1',
+        
+        'trigger2_invisible_field_char',
+        'trigger2_invisible_field_selection',
+        'trigger2_invisible_field_m2o_demo1',
+        'trigger2_invisible_field_o2m_demo1',
+        'trigger2_invisible_field_m2m_demo1',
 
-		'trigger2_column_invisible_o2m_field_demo1',
-		'trigger2_column_invisible_m2m_field_demo1',
+        'trigger2_column_invisible_o2m_field_demo1',
+        'trigger2_column_invisible_m2m_field_demo1',
         
         'trigger2_no_unlink',
         'trigger2_no_write',
@@ -157,11 +157,11 @@ class DemoModel2(models.Model):
 
                 for attr in self._FAH_ATTRS:
                     if attr != 'column_invisible':
-    	                for field_type in field_types:
-    	                    if r['trigger2_'+attr+'_field_'+field_type] == True:
-    	                        attr_reg.set(['target2_field_'+field_type], attr, True, r)
-    	                    else:
-    	                        attr_reg.set(['target2_field_'+field_type], attr, False, r)
+                        for field_type in field_types:
+                            if r['trigger2_'+attr+'_field_'+field_type] == True:
+                                attr_reg.set(['target2_field_'+field_type], attr, True, r)
+                            else:
+                                attr_reg.set(['target2_field_'+field_type], attr, False, r)
 
                 cal_field_types = ['start_datetime', 'stop_datetime', 'allday_boolean']
 
