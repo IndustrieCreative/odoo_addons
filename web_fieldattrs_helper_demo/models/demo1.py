@@ -19,7 +19,7 @@ class DemoModel1(models.Model):
 
     name = fields.Char(
         string='Name',
-        # required = lambda self: self.browse(self._context.get('active_id')).trigger_field_1
+        # required = lambda self: self.browse(self._context.get('id')).trigger_field_1
     )
 
     # -------- TRIGGERS -------------------
