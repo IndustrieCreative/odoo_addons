@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-
 # import inspect
 from pprint import pformat
-from odoo import fields, models
+from odoo import api, fields, models
 from . web_fieldattrs_helper import FieldAttrsHelper
 
 # Override for the sole purpose of displaying the implementation status of the helper
@@ -105,3 +103,11 @@ _FAH_FIELD_REGISTRY =          # **!! DO NOT OVERRIDE !!**
 # -------------------
 # METHOD _fah_compute_helper_fields()
 # {inspect.getsource(Model._fah_compute_helper_fields)}
+
+
+class IrModelFields(models.Model):
+    _inherit = 'ir.model.fields'
+
+    @api.model
+    def _is_manual_name(self, name):
+        return super()._is_manual_name(name) or name.startswith('fah_')
