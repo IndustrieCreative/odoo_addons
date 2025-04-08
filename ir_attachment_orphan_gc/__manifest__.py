@@ -6,7 +6,7 @@
     'author': 'Walter Mantovani',
     'website': 'https://github.com/IndustrieCreative/odoo_addons',
     'category': 'Technical Settings',
-    'version': '17.0.1.0.0',
+    'version': '18.0.1.0.0',
     'depends': ['base', 'mail', 'web_responsive'],
     'application': False,
     'data': [
