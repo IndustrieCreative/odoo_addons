@@ -17,12 +17,12 @@
   </record>
 
   <record id="view_model_tree_inherit_web_fieldattrs_helper" model="ir.ui.view">
-    <field name="name">ir.model.tree.inherit.web.fieldattrs.helper</field>
+    <field name="name">ir.model.list.inherit.web.fieldattrs.helper</field>
     <field name="model">ir.model</field>
     <field name="inherit_id" ref="base.view_model_tree" />
     <field name="arch" type="xml">
 
-      <xpath expr="//tree[1]" position="inside">
+      <xpath expr="//list[1]" position="inside">
         <field name="fah_implemented"/>
       </xpath>
 

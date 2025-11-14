@@ -4,10 +4,10 @@
   <!-- TREE VIEWS -->
 
   <record id="demo1_view_tree" model="ir.ui.view">
-    <field name="name">Web helper field attrs Demo 1 - tree</field>
+    <field name="name">Web helper field attrs Demo 1 - list</field>
     <field name="model">web.fieldattrs.helper.demo1</field>
     <field name="arch" type="xml">
-      <tree>
+      <list>
           <field name="id"/>
           <field name="name"/>
 
@@ -15,7 +15,7 @@
           <field name="trigger1_required_field_selection"/>
           <field name="trigger1_invisible_field_selection"/>
           <field name="target1_field_selection"/>
-      </tree>
+      </list>
     </field>
   </record>
 
@@ -118,14 +118,14 @@
             <field name="target1_field_m2o_demo3"/>
           </group>
           
-          <group string="One2many to Demo 2 (editable embedded tree)" name="o2m_demo2" class="asc_label_nowrap"
+          <group string="One2many to Demo 2 (editable embedded list)" name="o2m_demo2" class="asc_label_nowrap"
                  colspan="2">
             <field name="trigger1_readonly_field_o2m_demo2"/>
             <field name="trigger1_required_field_o2m_demo2"/>
             <field name="trigger1_invisible_field_o2m_demo2"/>
 
             <field name="target1_field_o2m_demo2">
-              <tree editable="bottom" name="o2m_tree">
+              <list editable="bottom" name="o2m_tree">
                 <field name="name"/>
 
                 <field name="trigger2_readonly_field_char"/>
@@ -142,7 +142,7 @@
                         string="Action Demo 2"
                         type="object"
                         class="btn-primary btn-sm"/> <!-- oe_read_only -->
-              </tree>
+              </list>
             </field>
 
             <field name="trigger1_readonly_o2m_field_demo2"/>
@@ -155,30 +155,30 @@
 
           </group>
           
-          <group string="One2many to Demo 3 (editable embedded tree)" name="o2m_demo3" class="asc_label_nowrap"
+          <group string="One2many to Demo 3 (editable embedded list)" name="o2m_demo3" class="asc_label_nowrap"
                  colspan="2">
             <field name="trigger1_readonly_field_o2m_demo3"/>
             <field name="trigger1_required_field_o2m_demo3"/>
             <field name="trigger1_invisible_field_o2m_demo3"/>
             <field name="target1_field_o2m_demo3" widget="many2many">
-              <tree editable="bottom" name="o2m_demo3_tree">
+              <list editable="bottom" name="o2m_demo3_tree">
                 <field name="name"/>
 
                 <field name="target3_field_char"/>
                 <field name="target3_field_selection"/>
                 <field name="target3_field_m2o_demo1"/>
-              </tree>
+              </list>
             </field>
             <field name="trigger1_column_invisible_o2m_field_demo3"/>
           </group>
           
-          <group string="Many2many to Demo 2 (embedded tree+form)" name="m2m_demo2" class="asc_label_nowrap"
+          <group string="Many2many to Demo 2 (embedded list+form)" name="m2m_demo2" class="asc_label_nowrap"
                  colspan="2">
             <field name="trigger1_readonly_field_m2m_demo2"/>
             <field name="trigger1_required_field_m2m_demo2"/>
             <field name="trigger1_invisible_field_m2m_demo2"/>
             <field name="target1_field_m2m_demo2">
-              <tree name="m2m_tree">
+              <list name="m2m_tree">
                     <!-- editable="bottom" create="true" edit="true" delete="true" -->
                 <field name="name"/>
 
@@ -196,7 +196,7 @@
                         string="Action Demo 2"
                         type="object"
                         class="btn-primary btn-sm"/> <!-- oe_read_only -->
-              </tree>
+              </list>
 
               <!-- <kanban default_group_by="target2_field_selection"
                       group_create="false"
@@ -237,14 +237,14 @@
                   <field name="trigger2_column_invisible_o2m_field_demo1"/>
 
                   <field name="target2_field_o2m_demo1">
-                    <tree editable="bottom" name="o2m_demo1_tree">
+                    <list editable="bottom" name="o2m_demo1_tree">
                       <field name="name"/>
 
                       <field name="trigger1_readonly_field_selection"/>
                       <field name="trigger1_required_field_selection"/>
                       <field name="trigger1_invisible_field_selection"/>
                       <field name="target1_field_selection"/>
-                    </tree>
+                    </list>
                   </field>
 
                 </group>
@@ -254,20 +254,20 @@
             <field name="trigger1_column_invisible_m2m_field_demo2"/>
           </group>
           
-          <group string="Many2many to Demo 3 (editable embedded tree)" name="m2m_demo3" class="asc_label_nowrap"
+          <group string="Many2many to Demo 3 (editable embedded list)" name="m2m_demo3" class="asc_label_nowrap"
                  colspan="2">
             <field name="trigger1_readonly_field_m2m_demo3"/>
             <field name="trigger1_required_field_m2m_demo3"/>
             <field name="trigger1_invisible_field_m2m_demo3"/>
             <!-- <field name="target1_field_m2m_demo3" mode="from"/> -->
             <field name="target1_field_m2m_demo3">
-              <tree editable="bottom" name="m2m_demo3_tree">
+              <list editable="bottom" name="m2m_demo3_tree">
                 <field name="name"/>
 
                 <field name="target3_field_char"/>
                 <field name="target3_field_selection"/>
                 <field name="target3_field_m2o_demo1"/>
-              </tree>
+              </list>
             </field>
             <field name="trigger1_column_invisible_m2m_field_demo3"/>
           </group>
@@ -282,7 +282,7 @@
   <record id="web_fieldattrs_helper_demo1_action_window" model="ir.actions.act_window" >
     <field name="name">Demo 1</field>
     <field name="res_model">web.fieldattrs.helper.demo1</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">list,form</field>
   </record>
 
 </odoo>

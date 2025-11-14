@@ -72,7 +72,7 @@ class IrModel(models.Model):
             'name': 'Attachments',
             'type': 'ir.actions.act_window',
             'res_model': 'ir.attachment',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'target': 'current',
             'domain': [('res_model', '=', self.model)],
             'context': {

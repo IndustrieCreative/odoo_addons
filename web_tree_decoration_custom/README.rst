@@ -2,14 +2,14 @@
 Web Tree Decoration Custom
 =================================
 
-This module adds conditionable colors for the rows in the tree view.
+This module adds conditionable colors for the rows in the list view.
 
 Usage
 =====
 
-In the list view declaration, put the attribute `decoration-bg-<myColor>="<condition>"` in the tree tag::
+In the list view declaration, put the attribute `decoration-bg-<myColor>="<condition>"` in the list tag::
 
-    `<tree decoration-bg-green="my_field == 'some-value'">`
+    `<list decoration-bg-green="my_field == 'some-value'">`
 
 The available colors palette is:
 

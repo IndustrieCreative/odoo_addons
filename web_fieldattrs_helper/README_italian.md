@@ -308,7 +308,7 @@ direttamente nella view XML. Ad esempio:
 L'esempio qua sopra significa che, quando il campo ``field_name2`` assume valore ``True``,
 il campo ``field_name1`` deve diventare ``readonly``.
 
-Gli "attrs" sono: *invisible*, *readonly*, *required* e, per gli embedded tree, anche
+Gli "attrs" sono: *invisible*, *readonly*, *required* e, per gli embedded list, anche
 *column_invisible*.
 
 In questo modo "classico" tutta la logica della gestione degli elementi XML è scritta
@@ -592,10 +592,10 @@ Possono essere di due tipi:
 Per i **field** è possibile gestire tutti gli attrs:
 - *readonly*
 - *required*
-- *invisible* (+ *column_invisible* nel caso di embedded tree)
+- *invisible* (+ *column_invisible* nel caso di embedded list)
 
 Per i **node** invece hanno senso solo gli attributi di visibilità:
-- invisible (+ *column_invisible* nel caso di embedded tree)
+- invisible (+ *column_invisible* nel caso di embedded list)
 
 Per far sì che i domain vengano iniettati negli ``attrs`` dei target, questi vanno dichiarati
 nella definizione del modello.
@@ -654,7 +654,7 @@ Attributi gestibili: ``invisible``.
 > ``_fah_model_target_fields`` o ``_fah_embedded_target_fields``.  
 > Testato con attributi: ``id``, ``name``.
 
-<ins>**Elementi generici nelle view embedded (attualmente solo embedded tree).**</ins>  
+<ins>**Elementi generici nelle view embedded (attualmente solo embedded list).**</ins>  
 Set di tuple, ciascuna con 5 elementi: (rel_field, HTML tag, attribute, value, tag helper).  
 Attributi gestibili: ``invisible``, ``column_invisible``.
 ```python
@@ -706,14 +706,14 @@ ecc...) avranno un domain che punterà al relativo campo helper.
            }"/>
 ```
 
-Per i campi di un embedded tree, abbiamo anche l'attributo ``column_invisible``.
+Per i campi di un embedded list, abbiamo anche l'attributo ``column_invisible``.
 Per esempio, se il nostro campo è visualizzato tramite un campo One2many che chiamiamo
 ``item_ids``, potremmo avere:
 
 ```xml
 
     <field name="item_ids">
-      <tree>
+      <list>
         <field name="field_name1"
                attrs="{
                    'readonly': [('parent.fah_readonly_targets', 'like', '@item_ids.field_name1@')],
@@ -721,7 +721,7 @@ Per esempio, se il nostro campo è visualizzato tramite un campo One2many che ch
                    'invisible': [('parent.fah_invisible_targets', 'like', '@item_ids.field_name1@')],
                    'column_invisible': [('parent.fah_column_invisible_targets', 'like', '@item_ids.field_name1@')]
                }"/>
-      </tree>
+      </list>
     </field>
 
 ```
@@ -732,7 +732,7 @@ anche i domain verso i campi helper del comodel.
 ```xml
 
     <field name="item_ids">
-      <tree>
+      <list>
         <field name="field_name1"
                attrs="{
                    'readonly': [
@@ -752,7 +752,7 @@ anche i domain verso i campi helper del comodel.
                    ],
                    'column_invisible': [('parent.fah_column_invisible_targets', 'like', '@item_ids.field_name1@')]
                }"/>
-      </tree>
+      </list>
     </field>
 
 ```
@@ -969,7 +969,7 @@ Esempio di utilizzo del metodo negli override:
                         msg='You cannot edit the field because...')
                 
                 # Per 'column_invisible', 'readonly', 'required', 'invisible' 
-                # (campi del comodel negli embedded tree )
+                # (campi del comodel negli embedded list )
                 if ... :
                     attr_reg.set(['items_ids.item_field'], 'column_invisible', True, r)
                 
@@ -1270,7 +1270,7 @@ Dato che questo helper può essere attivo solo su specifici modelli, può essere
 dopo un po' ricordarsi quali modelli utilizzano l'helper e soprattutto quali impostazioni
 sono attive su ciascuno.
 
-Attivando la "developer mode" e andando su "Edit view: Form" oppure "Edit view: Tree" tramite
+Attivando la "developer mode" e andando su "Show: Form" oppure "Show: List" tramite
 il "menu developer" possiamo vedere a colpo d'occhio se l'helper è attivo. Possiamo fare lo
 stesso passando per Settings > Technical > User Interface > Views e poi aprendo la view.
 
@@ -1420,7 +1420,7 @@ miglioramento di quanto ho iniziato. Grazie.
   varie funzioni.
 
 - @ ``./models/models.py``
-  - Attualmente, se si prova ad utilizzare una view diversa da ``tree``, ``form`` o ``search``,
+  - Attualmente, se si prova ad utilizzare una view diversa da ``list``, ``form`` o ``search``,
     viene sollevato l'errore "Tipo di vista non ancora supportata". Questo perché non sono
     ancora stati fatti studi sugli altri tipi di viste. Tutte le viste che non rientrano in
     uno dei seguenti casi possono essere ignorate e intanto non sollevare erroori bloccanti.
@@ -1485,7 +1485,7 @@ miglioramento di quanto ho iniziato. Grazie.
   solo se i check sono attivi e/o se ``invisible`` e ``readonly`` sono presenti in
   ``_FAH_ATTRS``... ma questo cambierebbe qualcosa ?!
 
-- Attualmente l'iniezione viene fatta su TUTTE le viste (tree e form).
+- Attualmente l'iniezione viene fatta su TUTTE le viste (list e form).
   Dare la possibilità di iniettare attrs e helper fields solo su determinate viste.
   E far sì che il sistema di check si attivi solo se il record è manipolato tramite
   quelle view, altrimenti si usano i sistemi tradizionali implementati in quel modello

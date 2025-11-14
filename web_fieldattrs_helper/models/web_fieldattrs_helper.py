@@ -216,7 +216,7 @@ class FieldAttrsHelper(models.AbstractModel):
     _FAH_ATTRS = ['readonly', 'required', 'invisible', 'column_invisible'] # NOTE: leave it as list() !
     _FAH_OPS = ['no_read', 'no_write', 'no_create', 'no_unlink']
     # Type of views you want to inject the attrs into
-    _FAH_VIEWS = ['form', 'tree', 'embedded_form', 'embedded_tree']
+    _FAH_VIEWS = ['form', 'list', 'embedded_form', 'embedded_list']
     # Target field name delimiters, to avoid false positives in the "like" (e.g. "name" and "surname")
     # Please note that the fields delimiter and the tag delimiter must be different.
     # Be careful to use only ASCII symbols, not alphanumeric characters and not uderscore (_).
@@ -337,7 +337,7 @@ class FieldAttrsHelper(models.AbstractModel):
     _fah_model_target_nodes = set()
 
     # Elements in the embedded views of the model which must have the attributes
-    # "invisible" (or "column_invisible" for embedded/inline tree).
+    # "invisible" (or "column_invisible" for embedded/inline list).
     # e.g. {('item_ids', 'button', 'name', 'action_demo', '#HIDE-BUTTON#')}
     _fah_embedded_target_nodes = set()
     # - - - - TRIGGERS declaration - - - -
@@ -477,9 +477,8 @@ class FieldAttrsHelper(models.AbstractModel):
     # Check that ATTRS and OPS are complied with.
     
     @api.model
-    def _search(self, args, offset=0, limit=None, order=None, access_rights_uid=None):
-        ids = super(FieldAttrsHelper, self)._search(args, offset=offset, limit=limit, order=order,
-                                                    access_rights_uid=access_rights_uid)
+    def _search(self, domain, offset=0, limit=None, order=None):
+        ids = super(FieldAttrsHelper, self)._search(domain, offset=offset, limit=limit, order=order)
         if self.env.is_superuser():
             # Rules do not apply in superuser mode
             return super(FieldAttrsHelper, self.sudo())._search([('id', 'in', ids)], order=order)

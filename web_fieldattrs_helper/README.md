@@ -591,10 +591,10 @@ They can be of two types:
 For **fields** it is possible to handle all attrs:
 - *readonly*
 - *required*
-- *invisible* (+ *column_invisible* in case of embedded/inline tree)
+- *invisible* (+ *column_invisible* in case of embedded/inline list)
 
 For **node** only the visibility attributes make sense:
-- invisible (+ *column_invisible* in the case of embedded/inline tree).
+- invisible (+ *column_invisible* in the case of embedded/inline list).
 
 For domains to be injected into the ``attrs`` of targets, these targets must be declared
 in the model definition.
@@ -654,7 +654,7 @@ Attributes that can be managed: ``invisible``.
 > slots ``_fah_model_target_fields`` or ``_fah_embedded_target_fields``.  
 > Tested with attributes: ``id``, ``name``.
 
-<ins>**Generic elements in embedded views (currently only embedded tree).**</ins>.  
+<ins>**Generic elements in embedded views (currently only embedded list).**</ins>.  
 Set of tuples, each with 5 elements:(rel_field, HTML tag, attribute, value, helper tag).  
 Attributes that can be managed: ``invisible``, ``column_invisible``.
 ```python
@@ -707,14 +707,14 @@ have a domain that will point to the relative helper field.
            }"/>
 ```
 
-For fields in an embedded tree, we also have the ``column_invisible`` attribute.
+For fields in an embedded list, we also have the ``column_invisible`` attribute.
 For example, if our field is displayed via a One2many field that we call ``item_ids``,
 we might have:
 
 ```xml
 
     <field name="item_ids">
-      <tree>
+      <list>
         <field name="field_name1"
                attrs="{
                    'readonly': [('parent.fah_readonly_targets', 'like', '@item_ids.field_name1@')],
@@ -722,7 +722,7 @@ we might have:
                    'invisible': [('parent.fah_invisible_targets', 'like', '@item_ids.field_name1@')],
                    'column_invisible': [('parent.fah_column_invisible_targets', 'like', '@item_ids.field_name1@')]
                }"/>
-      </tree>
+      </list>
     </field>
 
 ```
@@ -733,7 +733,7 @@ the comodel helper fields will be injected as well.
 ```xml
 
     <field name="item_ids">
-      <tree>
+      <list>
         <field name="field_name1"
                attrs="{
                    'readonly': [
@@ -753,7 +753,7 @@ the comodel helper fields will be injected as well.
                    ],
                    'column_invisible': [('parent.fah_column_invisible_targets', 'like', '@item_ids.field_name1@')]
                }"/>
-      </tree>
+      </list>
     </field>
 
 ```

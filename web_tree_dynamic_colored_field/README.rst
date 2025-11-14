@@ -1,5 +1,5 @@
 ============================
-Colorize field in tree views
+Colorize field in list views
 ============================
 
 .. 
@@ -28,16 +28,16 @@ Colorize field in tree views
 
 |badge1| |badge2| |badge3| |badge4| |badge5|
 
-This module aims to add support for dynamically coloring fields in tree
+This module aims to add support for dynamically coloring fields in list
 view according to data in the record.
 
 Features
 --------
 
 -  Add attribute ``bg_color`` on field's ``options`` to color background
-   of a cell in tree view
+   of a cell in list view
 -  Add attribute ``fg_color`` on field's ``options`` to change text
-   color of a cell in tree view
+   color of a cell in list view
 
 **Table of contents**
 
@@ -47,7 +47,7 @@ Features
 Usage
 =====
 
--  In the tree view declaration, put
+-  In the list view declaration, put
    ``options='{"bg_color": "red: customer==True"}`` attribute in the
    ``field`` tag:
 
@@ -55,17 +55,17 @@ Usage
 
       ...
       <field name="arch" type="xml">
-          <tree string="View name">
+          <list string="View name">
               ...
               <field name="name" options='{"bg_color": "red: customer == True"}'/>
               ...
-          </tree>
+          </list>
       </field>
       ...
 
       With this example, column which renders 'name' field will have its **background** colored in red on customer records.
 
--  In the tree view declaration, put
+-  In the list view declaration, put
    ``options='{"fg_color": "white:customer == True"}'`` attribute in the
    ``field`` tag:
 
@@ -73,11 +73,11 @@ Usage
 
       ...
       <field name="arch" type="xml">
-          <tree string="View name">
+          <list string="View name">
               ...
               <field name="name" options='{"fg_color": "white:customer == True"}'/>
               ...
-          </tree>
+          </list>
       </field>
       ...
 
@@ -96,15 +96,15 @@ Example:
 
    ...
     <field name="arch" type="xml">
-        <tree string="View name">
+        <list string="View name">
             ...
             <field name="name" options='{"fg_color": "red:red_color == True; green:green_color == True"}'/>
             ...
-        </tree>
+        </list>
     </field>
     ...
 
--  Can use strings too... In the tree view declaration, put
+-  Can use strings too... In the list view declaration, put
    ``options="{'fg_color': 'green:customer_state == \'success\''}"``
    attribute in the ``field`` tag:
 
@@ -112,11 +112,11 @@ Example:
 
       ...
       <field name="arch" type="xml">
-          <tree string="View name">
+          <list string="View name">
               ...
               <field name="name" options="{'fg_color': 'green:customer_state == \'success\''}"/>
               ...
-          </tree>
+          </list>
       </field>
       ...
 
@@ -129,8 +129,8 @@ Known issues / Roadmap
 
 -  Before version 13.0, this module had a feature allowing to change the
    color of a line depending on a field, using a ``colors`` attribute
-   with the name of the field on the ``<tree>`` element. Since 13.0, the
-   ``colors`` attribute is no longer in the RelaxNG schema of the tree
+   with the name of the field on the ``<list>`` element. Since 13.0, the
+   ``colors`` attribute is no longer in the RelaxNG schema of the list
    view, so we can't use it anymore. This feature has then been dropped,
    but could be reimplement in another way.
 -  Since version 17.0 coloring is written into ``style`` attribute of

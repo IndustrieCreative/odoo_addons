@@ -7,7 +7,7 @@
     <field name="inherit_id" ref="base.view_view_tree" />
     <field name="arch" type="xml">
 
-      <xpath expr="//tree[1]" position="inside">
+      <xpath expr="//list[1]" position="inside">
         <field name="fah_implemented"/>
       </xpath>
 
@@ -26,7 +26,6 @@
           <img src="/web_fieldattrs_helper/static/description/icon.png" alt="Icon" style="width: 37px;"/>
           <div>FAH is active!</div>
         </div>
-        <field name="fah_implemented" invisible="1"/>
       </xpath>
 
       <xpath expr="//notebook[1]" position="inside">

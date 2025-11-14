@@ -125,23 +125,23 @@ class Base(models.AbstractModel):
 
             # - - - - - - -
             # EMBEDDED O2M / M2M FIELDS
-            # NOTE: For now, only "tree" and "form".
+            # NOTE: For now, only "list" and "form".
             # @todo: ? manage other embedded types ? ('graph', 'kanban', 'calendar')
             #        not_supported_embed = doc.xpath("//*[self::graph or self::kanban or self::calendar]")
             
             # Embedded Trees & Forms
-            # NOTE: Field injection makes no difference between "tree" or "form",
+            # NOTE: Field injection makes no difference between "list" or "form",
             #       it always injects at the end of the root.
             #       For now, on embdedded/inline forms it does not look for the possible sheet,
             #       and does not inject helper fields in debug mode.
 
-            for embed_node in arch.xpath("//tree[(ancestor::field)] | //form[(ancestor::field)]"):
+            for embed_node in arch.xpath("//list[(ancestor::field)] | //form[(ancestor::field)]"):
                 model, rel_field_name, comodel, level = self._get_embedding_model_and_field(view_id, embed_node)
                 
                 # If the comodel implements the helper's abstract model
                 if isinstance(comodel, FieldAttrsHelper):
                     if comodel._FAH_XML_INJECT:
-                        if embed_node.tag == 'tree' and 'embedded_tree' in comodel._FAH_VIEWS:
+                        if embed_node.tag == 'list' and 'embedded_list' in comodel._FAH_VIEWS:
                             pass
                         elif embed_node.tag == 'form' and 'embedded_form' in comodel._FAH_VIEWS:
                             pass
@@ -177,10 +177,10 @@ class Base(models.AbstractModel):
                             }))
                             embed_node.append(xml_div)
 
-        elif view_type == 'tree':
+        elif view_type == 'list':
             if isinstance(self, FieldAttrsHelper):        
-                if self._FAH_XML_INJECT and 'tree' in self._FAH_VIEWS:
-                    for tree_node in arch.xpath("//tree"):
+                if self._FAH_XML_INJECT and 'list' in self._FAH_VIEWS:
+                    for tree_node in arch.xpath("//list"):
                         for hf_name in self._FAH_ATTRS_FIELDS:
                             tree_node.append(etree.Element('field', {
                                 'name': hf_name,
@@ -223,7 +223,7 @@ class Base(models.AbstractModel):
                     for tn_def, tags in target_nodes.items():
                         tag_id, attr_id, attr_val_id = tn_def
                         for elem_node in arch.xpath("//%s[@%s='%s' and not (ancestor::field)]" % (tag_id, attr_id, attr_val_id)):
-                        # for elem_node in doc.xpath("//%s[@%s='%s' and not (parent::tree or parent::graph or parent::kanban or parent::calendar)]" % (tag_id, attr_id, attr_val_id)):
+                        # for elem_node in doc.xpath("//%s[@%s='%s' and not (parent::list or parent::graph or parent::kanban or parent::calendar)]" % (tag_id, attr_id, attr_val_id)):
                             tags_dict = {'model': tags}
                             self._fah_set_field_attrs(
                                 self, elem_node, attr_id, False, current_view_id, tags=tags_dict
@@ -231,7 +231,7 @@ class Base(models.AbstractModel):
 
             # - - - - - - -
             # EMBEDDED O2M / M2M FIELDS
-            # NOTE: For now only "tree" and "form".
+            # NOTE: For now only "list" and "form".
             # @todo: ? manage other embedded types ? ('graph', 'kanban', 'calendar')
             #        not_supported_embed = doc.xpath("//*[self::graph or self::kanban or self::calendar]")
             
@@ -271,7 +271,7 @@ class Base(models.AbstractModel):
                                     )
 
             # Embedded Trees
-            for tree_node in arch.xpath("//tree[(ancestor::field)]"):
+            for tree_node in arch.xpath("//list[(ancestor::field)]"):
                 # Search for parent
                 model, rel_field_name, comodel, level = self._get_embedding_model_and_field(view_id, tree_node)
 
@@ -283,7 +283,7 @@ class Base(models.AbstractModel):
                 #       are the names of the relational fields.
                 embedded_target_fields = dict()
                 if isinstance(model, FieldAttrsHelper):
-                    if model._FAH_XML_INJECT and model._FAH_XML_INJECT_ATTRS and 'embedded_tree' in model._FAH_VIEWS:
+                    if model._FAH_XML_INJECT and model._FAH_XML_INJECT_ATTRS and 'embedded_list' in model._FAH_VIEWS:
                         embedded_target_fields = model._FAH_FIELD_REGISTRY['embedded_target_fields']
                 rel_embedded_target_fields = embedded_target_fields.get(rel_field_name, dict())
                 
@@ -291,7 +291,7 @@ class Base(models.AbstractModel):
                 # (those that are driven by the comodel).
                 comodel_target_fields = dict()
                 if isinstance(comodel, FieldAttrsHelper):
-                    if comodel._FAH_XML_INJECT and comodel._FAH_XML_INJECT_ATTRS and 'embedded_tree' in comodel._FAH_VIEWS:
+                    if comodel._FAH_XML_INJECT and comodel._FAH_XML_INJECT_ATTRS and 'embedded_list' in comodel._FAH_VIEWS:
                         comodel_target_fields = comodel._FAH_FIELD_REGISTRY['model_target_fields']
                 
                 # Turns the dict keys into a set
@@ -405,9 +405,9 @@ class Base(models.AbstractModel):
                                 attrs_mode='rel_only', tags=tags_dict
                             )
 
-        elif view_type == 'tree':
+        elif view_type == 'list':
             if isinstance(self, FieldAttrsHelper):
-                if self._FAH_XML_INJECT and self._FAH_XML_INJECT_ATTRS and 'tree' in self._FAH_VIEWS:
+                if self._FAH_XML_INJECT and self._FAH_XML_INJECT_ATTRS and 'list' in self._FAH_VIEWS:
                     for tf_name, tags in target_fields.items():
                         for field_node in arch.xpath("//field[@name='%s']" % tf_name):
                             tags_dict = {'model': tags}
@@ -546,7 +546,7 @@ class Base(models.AbstractModel):
 
                     if attrs_mode in ['common', 'comodel_only']:
                         delimiter = model._FAH_ATTRS_FIELDS_DELIMITER
-                        # Compile the domain to the helper field of its embedded tree
+                        # Compile the domain to the helper field of its embedded list
                         for attr, helper_field_name in model._FAH_ATTRS_TUPLES:
                             if attr != 'column_invisible':
                                 field_operand = f"('{delimiter}{tigger_str}{delimiter}' in {helper_field_name})"
@@ -588,7 +588,7 @@ class Base(models.AbstractModel):
                                     attrs_dict[attr].append(f"('{tag}' in parent.{helper_field_name})")
                     
                     if attrs_mode in ['common', 'comodel_only']:
-                        # Compile the domain to the helper field of its embedded tree
+                        # Compile the domain to the helper field of its embedded list
                         for attr, helper_field_name in model._FAH_ATTRS_TUPLES:
                             if attr == 'invisible':
                                 if not attrs_dict.get(attr, False):

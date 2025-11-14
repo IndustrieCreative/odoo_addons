@@ -4,10 +4,10 @@
   <!-- TREE VIEWS -->
 
   <record id="demo3_view_tree" model="ir.ui.view">
-    <field name="name">Web helper field attrs Demo 3 - tree</field>
+    <field name="name">Web helper field attrs Demo 3 - list</field>
     <field name="model">web.fieldattrs.helper.demo3</field>
     <field name="arch" type="xml">
-      <tree>
+      <list>
         <field name="id"/>
         <field name="name"/>
 
@@ -17,7 +17,7 @@
         <field name="target3_field_o2m_demo1"/>
         <field name="target3_field_m2m_demo1"/>
 
-      </tree>
+      </list>
     </field>
   </record>
 
@@ -48,28 +48,28 @@
           <group string="One2many to Demo 1 (embedded view)" name="o2m_demo1" class="asc_label_nowrap"
                  colspan="2">
             <field name="target3_field_o2m_demo1">
-              <tree editable="bottom" name="o2m_demo1_tree">
+              <list editable="bottom" name="o2m_demo1_tree">
                 <field name="name"/>
 
                 <field name="trigger1_readonly_field_selection"/>
                 <field name="trigger1_required_field_selection"/>
                 <field name="trigger1_invisible_field_selection"/>
                 <field name="target1_field_selection"/>
-              </tree>
+              </list>
             </field>
           </group>
 
-          <group string="Many2many to Demo 1 (editable embedded tree)" name="m2m_demo1" class="asc_label_nowrap"
+          <group string="Many2many to Demo 1 (editable embedded list)" name="m2m_demo1" class="asc_label_nowrap"
                  colspan="2">
             <field name="target3_field_m2m_demo1">
-              <tree editable="bottom" name="m2m_demo1_tree">
+              <list editable="bottom" name="m2m_demo1_tree">
                 <field name="name"/>
 
                 <field name="trigger1_readonly_field_selection"/>
                 <field name="trigger1_required_field_selection"/>
                 <field name="trigger1_invisible_field_selection"/>
                 <field name="target1_field_selection"/>
-              </tree>
+              </list>
             </field>
           </group>
         
@@ -83,7 +83,7 @@
   <record id="web_fieldattrs_helper_demo3_action_window" model="ir.actions.act_window" >
     <field name="name">Demo 3</field>
     <field name="res_model">web.fieldattrs.helper.demo3</field>
-    <field name="view_mode">tree,form</field>
+    <field name="view_mode">list,form</field>
   </record>
 
 </odoo>

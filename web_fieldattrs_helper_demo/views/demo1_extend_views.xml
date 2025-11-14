@@ -2,7 +2,7 @@
 <odoo> 
 
   <record id="demo1_extend_view_tree" model="ir.ui.view">
-    <field name="name">Web helper field attrs Demo 1 - tree inherit</field>
+    <field name="name">Web helper field attrs Demo 1 - list inherit</field>
     <field name="model">web.fieldattrs.helper.demo1</field>
     <field name="inherit_id" ref="demo1_view_tree"/>
     <field name="arch" type="xml">

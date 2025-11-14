@@ -20,12 +20,12 @@
 
 
   <record id="view_model_tree_inherit_orphan_gc" model="ir.ui.view">
-    <field name="name">ir.model.tree.inherit.orphan.gc</field>
+    <field name="name">ir.model.list.inherit.orphan.gc</field>
     <field name="model">ir.model</field>
     <field name="inherit_id" ref="base.view_model_tree" />
     <field name="arch" type="xml">
 
-      <xpath expr="//tree[1]" position="inside">
+      <xpath expr="//list[1]" position="inside">
         <field name="attachment_gc_active"/>
         <field name="attachment_gc_active_not_o2m"/>
       </xpath>

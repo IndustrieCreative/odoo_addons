@@ -91,14 +91,14 @@ attachments are system ones and are handled automatically by Odoo (at least I ho
 
 When an image is deleted, you can see in the log that two records are deleted instead of
 one. The other record is the thumbnail, which is handled automatically and hidden by
-default in the Attachments tree view.
+default in the Attachments list view.
 
 If you are not in Superuser Mode, you cannot display all the attachments in "ir.attachment".
 For this reason, if you need to debug, I suggest to login as Superuser (from the Debug menu
 in the systray when you are in Developer Mode).
 
 By default, Attachments with ``res_field`` set to value are not displayed and are not managed
-by this garbage collector. So see all all the Attachments in tree view, you can use the preset
+by this garbage collector. So see all all the Attachments in list view, you can use the preset
 filter "SHOW ALL".
 
 ---
@@ -193,10 +193,7 @@ View (XML file)
                     <field name="o2m_attachment_ids" />
 
                 </sheet>
-                <div class="oe_chatter">
-                  <field name="message_follower_ids" widget="mail_followers" />
-                  <field name="message_ids" widget="mail_thread" />
-                </div>
+                <chatter/>
             </form>
         </field>
     </record>
